@@ -1,0 +1,56 @@
+{% extends "nova2fa/base_2fa.html" %}
+
+{% block title %}Two-Factor Authentication Settings{% endblock %}
+
+{% block content %}
+<div class="nova2fa-card">
+    <h1>Two-Factor Authentication</h1>
+    
+    {% if two_factor_settings.is_enabled %}
+        <p><strong>Status:</strong> Enabled</p>
+        <p><strong>Method:</strong> {{ two_factor_settings.get_method_display }}</p>
+        {% if two_factor_settings.last_verified %}
+            <p><strong>Last Verified:</strong> {{ two_factor_settings.last_verified|date:"F d, Y H:i" }}</p>
+        {% endif %}
+        
+        <div class="nova2fa-mt-2">
+            <a href="{% url 'nova2fa:change_method' %}" class="nova2fa-button nova2fa-button-secondary">
+                Change Method
+            </a>
+            <a href="{% url 'nova2fa:view_backup_codes' %}" class="nova2fa-button nova2fa-button-secondary">
+                View Backup Codes
+            </a>
+            <a href="{% url 'nova2fa:disable' %}" class="nova2fa-button nova2fa-button-danger">
+                Disable 2FA
+            </a>
+        </div>
+    {% else %}
+        <p>Two-factor authentication is not enabled for your account.</p>
+        <p>Enable 2FA to add an extra layer of security to your account.</p>
+        
+        <div class="nova2fa-mt-2">
+            <a href="{% url 'nova2fa:setup' %}" class="nova2fa-button">
+                Enable Two-Factor Authentication
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<div class="nova2fa-card">
+    <h2>About Two-Factor Authentication</h2>
+    <p>Two-factor authentication (2FA) adds an extra layer of security to your account by requiring a second form of verification in addition to your password.</p>
+    
+    <h3>Available Methods:</h3>
+    <ul>
+        {% for code, method in enabled_methods.items %}
+        <li><strong>{{ method.verbose_name }}:</strong> 
+            {% if code == 'email' %}
+                Receive verification codes via email
+            {% elif code == 'totp' %}
+                Use an authenticator app like Google Authenticator or Authy
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

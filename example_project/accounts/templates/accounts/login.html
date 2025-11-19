@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Nova2FA Example{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Login</h1>
+    <p>Login to test Nova2FA</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.username.id_for_label }}">Username:</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+                <ul class="errorlist">
+                    {% for error in form.username.errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.password.id_for_label }}">Password:</label>
+            {{ form.password }}
+            {% if form.password.errors %}
+                <ul class="errorlist">
+                    {% for error in form.password.errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        
+        {% if form.non_field_errors %}
+            <ul class="errorlist">
+                {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        
+        <button type="submit" class="btn">Login</button>
+        <a href="{% url 'accounts:register' %}" class="btn btn-secondary">Create Account</a>
+    </form>
+</div>
+
+<div class="card">
+    <h2>Test Users</h2>
+    <p>After creating a superuser with <code>python manage.py createsuperuser</code>, you can test 2FA:</p>
+    <ol style="margin-left: 20px;">
+        <li>Login with your credentials</li>
+        <li>Navigate to "2FA Settings"</li>
+        <li>Enable 2FA with your preferred method</li>
+        <li>Logout and login again to test verification</li>
+    </ol>
+</div>
+{% endblock %}

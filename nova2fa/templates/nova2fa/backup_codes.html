@@ -1,0 +1,38 @@
+{% extends "nova2fa/base_2fa.html" %}
+
+{% block title %}Backup Codes{% endblock %}
+
+{% block content %}
+<div class="nova2fa-card">
+    <h1>Backup Codes</h1>
+    
+    <p>Backup codes can be used to access your account if you lose access to your primary 2FA method.</p>
+    <p><strong>Available codes:</strong> {{ available_count }} of {{ total_count }}</p>
+    
+    <div class="nova2fa-message warning">
+        <strong>Important:</strong> Each backup code can only be used once. Store these codes in a safe place.
+    </div>
+    
+    <div class="nova2fa-mt-2 nova2fa-mb-2">
+        <ul>
+            {% for code_data in backup_codes_status %}
+            <li>
+                <strong>{{ code_data.code }}</strong>
+                {% if code_data.is_used %}
+                    <span style="color: #999;">(Used)</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <form method="post" action="{% url 'nova2fa:regenerate_backup_codes' %}">
+        {% csrf_token %}
+        <button type="submit" class="nova2fa-button nova2fa-button-danger" 
+                onclick="return confirm('This will invalidate all existing backup codes. Continue?')">
+            Generate New Codes
+        </button>
+        <a href="{% url 'nova2fa:settings' %}" class="nova2fa-button nova2fa-button-secondary">Back</a>
+    </form>
+</div>
+{% endblock %}

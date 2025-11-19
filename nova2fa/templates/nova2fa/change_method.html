@@ -1,0 +1,32 @@
+{% extends "nova2fa/base_2fa.html" %}
+
+{% block title %}Change Authentication Method{% endblock %}
+
+{% block content %}
+<div class="nova2fa-card">
+    <h1>Change Authentication Method</h1>
+    <p>Current method: <strong>{{ two_factor_settings.get_method_display }}</strong></p>
+    <p>Select a new authentication method:</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="nova2fa-form-group">
+            {{ form.method.label_tag }}
+            {% for radio in form.method %}
+                <div class="nova2fa-mb-1">
+                    {{ radio }}
+                </div>
+            {% endfor %}
+            {% if form.method.errors %}
+                <div class="nova2fa-error-text">{{ form.method.errors.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="nova2fa-form-group">
+            <button type="submit" class="nova2fa-button">Continue</button>
+            <a href="{% url 'nova2fa:settings' %}" class="nova2fa-button nova2fa-button-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

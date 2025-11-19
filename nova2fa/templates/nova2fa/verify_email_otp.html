@@ -1,0 +1,32 @@
+{% extends "nova2fa/base_2fa.html" %}
+
+{% block title %}Verify Email Code{% endblock %}
+
+{% block content %}
+<div class="nova2fa-card">
+    <h1>Verify Email Code</h1>
+    <p>A verification code has been sent to your email. Please enter it below:</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="nova2fa-form-group">
+            {{ form.code.label_tag }}
+            {{ form.code }}
+            {% if form.code.errors %}
+                <div class="nova2fa-error-text">{{ form.code.errors.0 }}</div>
+            {% endif %}
+            <div class="nova2fa-help-text">Enter the 6-digit code sent to your email</div>
+        </div>
+        
+        <div class="nova2fa-form-group">
+            <button type="submit" class="nova2fa-button">Verify and Enable</button>
+            <a href="{% url 'nova2fa:request_email_otp' %}" class="nova2fa-link">Resend Code</a>
+        </div>
+    </form>
+    
+    <div class="nova2fa-mt-2">
+        <a href="{% url 'nova2fa:setup' %}" class="nova2fa-button nova2fa-button-secondary">Back</a>
+    </div>
+</div>
+{% endblock %}

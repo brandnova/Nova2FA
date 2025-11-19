@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Nova2FA Example{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>User Profile</h1>
+    
+    <div style="margin-bottom: 30px;">
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email|default:"Not set" }}</p>
+        <p><strong>Joined:</strong> {{ user.date_joined|date:"F d, Y" }}</p>
+        <p><strong>Last Login:</strong> {{ user.last_login|date:"F d, Y H:i" }}</p>
+    </div>
+    
+    <h2>Security</h2>
+    <div style="margin-bottom: 20px;">
+        {% if user.nova2fa_settings.is_enabled %}
+            <p>
+                <span class="status status-enabled">2FA ENABLED</span>
+            </p>
+            <p><strong>Method:</strong> {{ user.nova2fa_settings.get_method_display }}</p>
+            {% if user.nova2fa_settings.last_verified %}
+            <p><strong>Last Verified:</strong> {{ user.nova2fa_settings.last_verified|date:"F d, Y H:i" }}</p>
+            {% endif %}
+            <p>
+                <strong>Backup Codes:</strong> 
+                {{ user.nova2fa_settings.backup_codes|length }} total, 
+                {{ user.nova2fa_settings.get_available_backup_codes|length }} available
+            </p>
+        {% else %}
+            <p>
+                <span class="status status-disabled">2FA DISABLED</span>
+            </p>
+            <p>Your account is not protected by two-factor authentication.</p>
+        {% endif %}
+    </div>
+    
+    <a href="{% url 'nova2fa:settings' %}" class="btn">Manage 2FA Settings</a>
+    <a href="{% url 'home' %}" class="btn btn-secondary">Back to Home</a>
+</div>
+
+<div class="card">
+    <h2>About This Demo</h2>
+    <p>This is a minimal example project demonstrating Nova2FA integration.</p>
+    
+    <h3>Features You Can Test:</h3>
+    <ul style="margin-left: 20px;">
+        <li><strong>Email OTP:</strong> Receive codes via email (check console in development)</li>
+        <li><strong>TOTP:</strong> Use Google Authenticator or similar apps</li>
+        <li><strong>Backup Codes:</strong> Generate and use recovery codes</li>
+        <li><strong>Method Switching:</strong> Change between email and TOTP</li>
+        <li><strong>Verification Flow:</strong> Test 2FA during login</li>
+    </ul>
+    
+    <h3>Configuration:</h3>
+    <p>Check <code>example_project/settings.py</code> to see Nova2FA configuration.</p>
+</div>
+{% endblock %}

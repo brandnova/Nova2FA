@@ -1,0 +1,12 @@
+site_name: Nova2FA Documentation
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Quickstart: quickstart.md
+  - Configuration: configuration.md
+  - Customization: customization.md
+  - API Reference: api-reference.md
+
+theme:
+  name: mkdocs

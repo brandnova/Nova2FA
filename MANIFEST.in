@@ -1,0 +1,13 @@
+include LICENSE
+include README.md
+include requirements.txt
+recursive-include nova2fa/templates *
+recursive-include nova2fa/static *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude example_project *
+recursive-exclude docs *
+recursive-exclude tests *
+prune example_project
+prune docs
+prune tests
