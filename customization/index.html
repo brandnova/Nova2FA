@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Customization - Nova2FA Documentation</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../css/brands.min.css" rel="stylesheet">
+        <link href="../css/solid.min.css" rel="stylesheet">
+        <link href="../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">Nova2FA Documentation</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../installation/" class="nav-link">Installation</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../quickstart/" class="nav-link">Quickstart</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../configuration/" class="nav-link">Configuration</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="./" class="nav-link active" aria-current="page">Customization</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../api-reference/" class="nav-link">API Reference</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../configuration/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../api-reference/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#customization-guide" class="nav-link">Customization Guide</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#template-customization" class="nav-link">Template Customization</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#framework-integration-examples" class="nav-link">Framework Integration Examples</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#email-template-customization" class="nav-link">Email Template Customization</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#form-customization" class="nav-link">Form Customization</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#url-customization" class="nav-link">URL Customization</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#adding-custom-pages" class="nav-link">Adding Custom Pages</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#translationinternationalization" class="nav-link">Translation/Internationalization</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#javascript-enhancement" class="nav-link">JavaScript Enhancement</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#next-steps" class="nav-link">Next Steps</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="customization-guide">Customization Guide</h1>
+<p>Nova2FA is designed to be completely customizable. This guide shows you how to adapt it to your needs.</p>
+<h2 id="template-customization">Template Customization</h2>
+<h3 id="understanding-template-structure">Understanding Template Structure</h3>
+<p>Nova2FA provides unstyled templates with minimal CSS. All templates extend from a base template that you can override.</p>
+<p><strong>Template hierarchy:</strong></p>
+<pre><code>nova2fa/base_2fa.html (Base template)
+    ├── nova2fa/settings.html (2FA settings page)
+    ├── nova2fa/setup.html (Method selection)
+    ├── nova2fa/setup_totp.html (TOTP setup)
+    ├── nova2fa/verify.html (Verification page)
+    ├── nova2fa/verify_email_otp.html (Email verification during setup)
+    ├── nova2fa/disable.html (Disable 2FA)
+    ├── nova2fa/backup_codes.html (View backup codes)
+    └── nova2fa/change_method.html (Change method)
+</code></pre>
+<h3 id="method-1-override-base-template">Method 1: Override Base Template</h3>
+<p>The simplest way to customize is to override the base template with your own.</p>
+<p><strong>Create <code>templates/nova2fa/base_2fa.html</code> in your project:</strong></p>
+<pre><code class="language-html">{% extends &quot;base.html&quot; %}
+
+{% block content %}
+&lt;div class=&quot;container my-5&quot;&gt;
+    {% if messages %}
+    &lt;div class=&quot;messages&quot;&gt;
+        {% for message in messages %}
+        &lt;div class=&quot;alert alert-{{ message.tags }}&quot;&gt;
+            {{ message }}
+        &lt;/div&gt;
+        {% endfor %}
+    &lt;/div&gt;
+    {% endif %}
+
+    {% block nova2fa_content %}{% endblock %}
+&lt;/div&gt;
+{% endblock %}
+</code></pre>
+<p>Now all Nova2FA pages will use your base template and styling!</p>
+<h3 id="method-2-override-individual-templates">Method 2: Override Individual Templates</h3>
+<p>You can override any specific template by creating it in your project's template directory.</p>
+<p><strong>Example: Custom settings page</strong></p>
+<p>Create <code>templates/nova2fa/settings.html</code>:</p>
+<pre><code class="language-html">{% extends &quot;base.html&quot; %}
+{% load static %}
+
+{% block title %}Security Settings{% endblock %}
+
+{% block content %}
+&lt;div class=&quot;container&quot;&gt;
+    &lt;div class=&quot;row&quot;&gt;
+        &lt;div class=&quot;col-md-8 offset-md-2&quot;&gt;
+            &lt;h1 class=&quot;mb-4&quot;&gt;Two-Factor Authentication&lt;/h1&gt;
+
+            {% if two_factor_settings.is_enabled %}
+            &lt;div class=&quot;card border-success&quot;&gt;
+                &lt;div class=&quot;card-body&quot;&gt;
+                    &lt;h5 class=&quot;card-title&quot;&gt;
+                        &lt;i class=&quot;bi bi-shield-check&quot;&gt;&lt;/i&gt; 2FA Enabled
+                    &lt;/h5&gt;
+                    &lt;p class=&quot;card-text&quot;&gt;
+                        &lt;strong&gt;Method:&lt;/strong&gt; {{ two_factor_settings.get_method_display }}
+                    &lt;/p&gt;
+                    &lt;p class=&quot;card-text&quot;&gt;
+                        &lt;strong&gt;Last Verified:&lt;/strong&gt; 
+                        {{ two_factor_settings.last_verified|date:&quot;F d, Y&quot; }}
+                    &lt;/p&gt;
+
+                    &lt;div class=&quot;btn-group&quot; role=&quot;group&quot;&gt;
+                        &lt;a href=&quot;{% url 'nova2fa:change_method' %}&quot; 
+                           class=&quot;btn btn-outline-primary&quot;&gt;
+                            Change Method
+                        &lt;/a&gt;
+                        &lt;a href=&quot;{% url 'nova2fa:view_backup_codes' %}&quot; 
+                           class=&quot;btn btn-outline-secondary&quot;&gt;
+                            Backup Codes
+                        &lt;/a&gt;
+                        &lt;a href=&quot;{% url 'nova2fa:disable' %}&quot; 
+                           class=&quot;btn btn-outline-danger&quot;&gt;
+                            Disable
+                        &lt;/a&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            {% else %}
+            &lt;div class=&quot;card border-warning&quot;&gt;
+                &lt;div class=&quot;card-body&quot;&gt;
+                    &lt;h5 class=&quot;card-title&quot;&gt;
+                        &lt;i class=&quot;bi bi-shield-exclamation&quot;&gt;&lt;/i&gt; 2FA Not Enabled
+                    &lt;/h5&gt;
+                    &lt;p class=&quot;card-text&quot;&gt;
+                        Protect your account with two-factor authentication.
+                    &lt;/p&gt;
+                    &lt;a href=&quot;{% url 'nova2fa:setup' %}&quot; 
+                       class=&quot;btn btn-primary&quot;&gt;
+                        Enable Two-Factor Authentication
+                    &lt;/a&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            {% endif %}
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+{% endblock %}
+</code></pre>
+<h3 id="method-3-add-custom-css-classes">Method 3: Add Custom CSS Classes</h3>
+<p>Nova2FA templates use prefixed CSS classes (<code>nova2fa-*</code>) that you can style:</p>
+<pre><code class="language-css">/* static/css/nova2fa-custom.css */
+
+.nova2fa-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+
+.nova2fa-button {
+    background: #667eea;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+.nova2fa-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.nova2fa-input {
+    border: 2px solid #e2e8f0;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.nova2fa-input:focus {
+    border-color: #667eea;
+    outline: none;
+}
+</code></pre>
+<p>Include it in your base template:</p>
+<pre><code class="language-html">{% load static %}
+&lt;link rel=&quot;stylesheet&quot; href=&quot;{% static 'css/nova2fa-custom.css' %}&quot;&gt;
+</code></pre>
+<h2 id="framework-integration-examples">Framework Integration Examples</h2>
+<h3 id="bootstrap-5">Bootstrap 5</h3>
+<pre><code class="language-html">{% extends &quot;base.html&quot; %}
+
+{% block content %}
+&lt;div class=&quot;container mt-5&quot;&gt;
+    &lt;div class=&quot;row justify-content-center&quot;&gt;
+        &lt;div class=&quot;col-md-6&quot;&gt;
+            &lt;div class=&quot;card shadow&quot;&gt;
+                &lt;div class=&quot;card-body&quot;&gt;
+                    {% if messages %}
+                    {% for message in messages %}
+                    &lt;div class=&quot;alert alert-{{ message.tags }} alert-dismissible fade show&quot;&gt;
+                        {{ message }}
+                        &lt;button type=&quot;button&quot; class=&quot;btn-close&quot; data-bs-dismiss=&quot;alert&quot;&gt;&lt;/button&gt;
+                    &lt;/div&gt;
+                    {% endfor %}
+                    {% endif %}
+
+                    {% block nova2fa_content %}{% endblock %}
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+{% endblock %}
+</code></pre>
+<h3 id="tailwind-css">Tailwind CSS</h3>
+<pre><code class="language-html">{% extends &quot;base.html&quot; %}
+
+{% block content %}
+&lt;div class=&quot;container mx-auto px-4 py-8&quot;&gt;
+    &lt;div class=&quot;max-w-2xl mx-auto&quot;&gt;
+        &lt;div class=&quot;bg-white rounded-lg shadow-lg p-6&quot;&gt;
+            {% if messages %}
+            &lt;div class=&quot;mb-4&quot;&gt;
+                {% for message in messages %}
+                &lt;div class=&quot;rounded-md p-4 mb-2 
+                    {% if message.tags == 'success' %}bg-green-50 text-green-800{% endif %}
+                    {% if message.tags == 'error' %}bg-red-50 text-red-800{% endif %}
+                    {% if message.tags == 'warning' %}bg-yellow-50 text-yellow-800{% endif %}
+                    {% if message.tags == 'info' %}bg-blue-50 text-blue-800{% endif %}&quot;&gt;
+                    {{ message }}
+                &lt;/div&gt;
+                {% endfor %}
+            &lt;/div&gt;
+            {% endif %}
+
+            {% block nova2fa_content %}{% endblock %}
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+{% endblock %}
+</code></pre>
+<h2 id="email-template-customization">Email Template Customization</h2>
+<p>Customize the OTP email by overriding the template:</p>
+<p><strong>Create <code>templates/nova2fa/emails/otp_email.html</code>:</strong></p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;style&gt;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+        .content {
+            padding: 40px;
+        }
+        .code {
+            background: #f8f9fa;
+            border: 2px dashed #667eea;
+            padding: 20px;
+            text-align: center;
+            font-size: 32px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            margin: 30px 0;
+            border-radius: 5px;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 12px;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class=&quot;container&quot;&gt;
+        &lt;div class=&quot;header&quot;&gt;
+            &lt;h1&gt;Your Verification Code&lt;/h1&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;content&quot;&gt;
+            &lt;p&gt;Hello {{ user.get_full_name|default:user.username }},&lt;/p&gt;
+            &lt;p&gt;Your two-factor authentication code is:&lt;/p&gt;
+
+            &lt;div class=&quot;code&quot;&gt;{{ otp }}&lt;/div&gt;
+
+            &lt;p&gt;This code will expire in &lt;strong&gt;{{ expiry_minutes }} minutes&lt;/strong&gt;.&lt;/p&gt;
+
+            &lt;p style=&quot;margin-top: 30px;&quot;&gt;
+                &lt;strong&gt;Security Notice:&lt;/strong&gt; If you didn't request this code, 
+                please ignore this email and ensure your account is secure.
+            &lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;footer&quot;&gt;
+            &lt;p&gt;This is an automated message. Please do not reply to this email.&lt;/p&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<h2 id="form-customization">Form Customization</h2>
+<p>Override forms to add custom widgets or validation:</p>
+<pre><code class="language-python"># myapp/forms.py
+from nova2fa.forms import TOTPVerificationForm
+
+class CustomTOTPForm(TOTPVerificationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add Bootstrap classes
+        self.fields['code'].widget.attrs.update({
+            'class': 'form-control form-control-lg text-center',
+            'placeholder': '000000',
+            'autofocus': True,
+        })
+</code></pre>
+<p>Then use it in your custom view or override the template to use it.</p>
+<h2 id="url-customization">URL Customization</h2>
+<p>You can change the URL prefix from <code>/2fa/</code> to anything:</p>
+<pre><code class="language-python"># urls.py
+urlpatterns = [
+    path('security/', include('nova2fa.urls')),  # Now it's /security/
+    path('mfa/', include('nova2fa.urls')),       # Or /mfa/
+]
+</code></pre>
+<h2 id="adding-custom-pages">Adding Custom Pages</h2>
+<p>Add your own pages that integrate with Nova2FA:</p>
+<pre><code class="language-python"># myapp/views.py
+from django.contrib.auth.decorators import login_required
+from nova2fa.models import UserTwoFactorSettings
+
+@login_required
+def security_dashboard(request):
+    try:
+        two_factor = UserTwoFactorSettings.objects.get(user=request.user)
+        has_2fa = two_factor.is_enabled
+    except UserTwoFactorSettings.DoesNotExist:
+        has_2fa = False
+
+    context = {
+        'has_2fa': has_2fa,
+        # Add more security metrics
+    }
+    return render(request, 'myapp/security_dashboard.html', context)
+</code></pre>
+<h2 id="translationinternationalization">Translation/Internationalization</h2>
+<p>Nova2FA is translation-ready. Add translations in your project:</p>
+<pre><code class="language-python"># settings.py
+LANGUAGE_CODE = 'es'  # Spanish
+
+USE_I18N = True
+</code></pre>
+<p>Create translation files:</p>
+<pre><code class="language-bash">django-admin makemessages -l es
+# Edit locale/es/LC_MESSAGES/django.po
+django-admin compilemessages
+</code></pre>
+<h2 id="javascript-enhancement">JavaScript Enhancement</h2>
+<p>Add JavaScript for better UX:</p>
+<pre><code class="language-html">&lt;!-- templates/nova2fa/setup_totp.html --&gt;
+{% extends &quot;nova2fa/base_2fa.html&quot; %}
+
+{% block extra_js %}
+&lt;script&gt;
+document.addEventListener('DOMContentLoaded', function() {
+    const codeInput = document.querySelector('[name=&quot;code&quot;]');
+
+    // Auto-submit when 6 digits entered
+    codeInput.addEventListener('input', function(e) {
+        if (this.value.length === 6) {
+            this.form.submit();
+        }
+    });
+
+    // Auto-focus on page load
+    codeInput.focus();
+});
+&lt;/script&gt;
+{% endblock %}
+</code></pre>
+<h2 id="next-steps">Next Steps</h2>
+<ul>
+<li>Check the <a href="../api-reference/">API Reference</a> for programmatic usage</li>
+<li>Review the <a href="https://github.com/brandnova/Nova2FA/tree/main/example_project">Example Project</a></li>
+</ul></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js"></script>
+        <script src="../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
