@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Two-Factor Authentication{% endblock %}</title>
+    {% block extra_head %}{% endblock %}
+    <style>
+        /* Minimal reset and basic structure only */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        
+        .nova2fa-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+        
+        .nova2fa-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .nova2fa-messages {
+            margin-bottom: 1rem;
+        }
+        
+        .nova2fa-message {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid transparent;
+        }
+        
+        .nova2fa-message.success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .nova2fa-message.error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .nova2fa-message.warning {
+            background-color: #fff3cd;
+            border-color: #ffeeba;
+            color: #856404;
+        }
+        
+        .nova2fa-message.info {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+        
+        .nova2fa-form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .nova2fa-label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+        
+        .nova2fa-input,
+        .nova2fa-select,
+        .nova2fa-textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .nova2fa-input:focus,
+        .nova2fa-select:focus,
+        .nova2fa-textarea:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+        
+        .nova2fa-button {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        
+        .nova2fa-button:hover {
+            background-color: #0052a3;
+        }
+        
+        .nova2fa-button-secondary {
+            background-color: #6c757d;
+        }
+        
+        .nova2fa-button-secondary:hover {
+            background-color: #545b62;
+        }
+        
+        .nova2fa-button-danger {
+            background-color: #dc3545;
+        }
+        
+        .nova2fa-button-danger:hover {
+            background-color: #bd2130;
+        }
+        
+        .nova2fa-link {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        
+        .nova2fa-link:hover {
+            text-decoration: underline;
+        }
+        
+        .nova2fa-text-center {
+            text-align: center;
+        }
+        
+        .nova2fa-mt-1 { margin-top: 0.5rem; }
+        .nova2fa-mt-2 { margin-top: 1rem; }
+        .nova2fa-mb-1 { margin-bottom: 0.5rem; }
+        .nova2fa-mb-2 { margin-bottom: 1rem; }
+        
+        .nova2fa-error-text {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .nova2fa-help-text {
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            margin-bottom: 1rem;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+        }
+        
+        ul {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="nova2fa-container">
+        {% if messages %}
+        <div class="nova2fa-messages">
+            {% for message in messages %}
+            <div class="nova2fa-message {{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </div>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

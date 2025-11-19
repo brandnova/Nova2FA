@@ -1,0 +1,97 @@
+{% extends "nova2fa/base_2fa.html" %}
+
+{% block title %}Two-Factor Authentication Required{% endblock %}
+
+{% block content %}
+<div class="nova2fa-card">
+    <h1>Two-Factor Authentication Required</h1>
+    
+    {% if method == 'totp' %}
+        <p>Enter the 6-digit code from your authenticator app:</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="nova2fa-form-group">
+                {{ form.code.label_tag }}
+                {{ form.code }}
+                {% if form.code.errors %}
+                    <div class="nova2fa-error-text">{{ form.code.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="nova2fa-form-group">
+                <button type="submit" class="nova2fa-button">Verify</button>
+            </div>
+        </form>
+        
+        {% if has_backup_codes %}
+        <div class="nova2fa-mt-2">
+            <p>Lost access to your authenticator app?</p>
+            <a href="{% url 'nova2fa:verify' %}?backup=true" class="nova2fa-link">Use a backup code instead</a>
+        </div>
+        {% endif %}
+        
+    {% elif method == 'email' %}
+        {% if not otp_sent %}
+            <p>Click the button below to receive a verification code via email:</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="send_otp">
+                <div class="nova2fa-form-group">
+                    <button type="submit" class="nova2fa-button">Send Verification Code</button>
+                </div>
+            </form>
+        {% else %}
+            <p>A verification code has been sent to your email. Please enter it below:</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="nova2fa-form-group">
+                    {{ form.code.label_tag }}
+                    {{ form.code }}
+                    {% if form.code.errors %}
+                        <div class="nova2fa-error-text">{{ form.code.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="nova2fa-form-group">
+                    <button type="submit" class="nova2fa-button">Verify</button>
+                    <a href="{% url 'nova2fa:request_verification_otp' %}" class="nova2fa-link">Resend Code</a>
+                </div>
+            </form>
+        {% endif %}
+        
+        {% if has_backup_codes %}
+        <div class="nova2fa-mt-2">
+            <p>Can't access your email?</p>
+            <a href="{% url 'nova2fa:verify' %}?backup=true" class="nova2fa-link">Use a backup code instead</a>
+        </div>
+        {% endif %}
+        
+    {% elif method == 'backup' %}
+        <p>Enter one of your backup codes:</p>
+        <p class="nova2fa-help-text">You have {{ available_codes_count }} backup codes remaining.</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="nova2fa-form-group">
+                {{ form.code.label_tag }}
+                {{ form.code }}
+                {% if form.code.errors %}
+                    <div class="nova2fa-error-text">{{ form.code.errors.0 }}</div>
+                {% endif %}
+                <div class="nova2fa-help-text">Backup codes are 8 characters long</div>
+            </div>
+            
+            <div class="nova2fa-form-group">
+                <button type="submit" class="nova2fa-button">Verify</button>
+                <a href="{% url 'nova2fa:verify' %}" class="nova2fa-button nova2fa-button-secondary">Back</a>
+            </div>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

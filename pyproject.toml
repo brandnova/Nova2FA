@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nova2fa"
+version = "1.0.0"
+description = "A flexible, production-ready Two-Factor Authentication (2FA) package for Django"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "BSD-3-Clause"}
+authors = [
+    {name = "Ijeoma Jahsway", email = "brandnova89@gmail.com"}
+]
+keywords = ["django", "2fa", "two-factor", "authentication", "otp", "totp", "security"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.0",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Security",
+]
+
+dependencies = [
+    "Django>=4.2",
+    "pyotp>=2.9.0",
+    "qrcode>=7.4.2",
+    "Pillow>=10.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-django>=4.5.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "isort>=5.12.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/brandnova/Nova2FA"
+Documentation = "https://nova2fa.readthedocs.io"
+Repository = "https://github.com/brandnova/Nova2FA"
+Issues = "https://github.com/brandnova/Nova2FA/issues"

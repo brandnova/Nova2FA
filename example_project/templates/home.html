@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Nova2FA Example{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Welcome to Nova2FA Example</h1>
+    
+    {% if user.is_authenticated %}
+        <p>Hello, <strong>{{ user.username }}</strong>!</p>
+        <p>This is a demonstration of Nova2FA - a flexible two-factor authentication package for Django.</p>
+        
+        <h2>Quick Links:</h2>
+        <ul style="margin-left: 20px; margin-bottom: 20px;">
+            <li><a href="{% url 'accounts:profile' %}">View Your Profile</a></li>
+            <li><a href="{% url 'nova2fa:settings' %}">Manage 2FA Settings</a></li>
+        </ul>
+        
+        <a href="{% url 'accounts:logout' %}" class="btn btn-secondary">Logout</a>
+    {% else %}
+        <p>This example project demonstrates how Nova2FA works with Django.</p>
+        
+        <h2>Getting Started:</h2>
+        <ol style="margin-left: 20px; margin-bottom: 20px;">
+            <li>Create an account or login</li>
+            <li>Navigate to 2FA Settings</li>
+            <li>Enable two-factor authentication</li>
+            <li>Choose your preferred method (Email or Authenticator App)</li>
+            <li>Test the verification flow</li>
+        </ol>
+        
+        <div style="margin-top: 20px;">
+            <a href="{% url 'accounts:register' %}" class="btn">Create Account</a>
+            <a href="{% url 'accounts:login' %}" class="btn btn-secondary">Login</a>
+        </div>
+    {% endif %}
+</div>
+
+{% if user.is_authenticated %}
+<div class="card">
+    <h2>2FA Status</h2>
+    {% if user.nova2fa_settings.is_enabled %}
+        <p>
+            <span class="status status-enabled">ENABLED</span>
+            Two-factor authentication is protecting your account.
+        </p>
+        <p><strong>Method:</strong> {{ user.nova2fa_settings.get_method_display }}</p>
+        {% if user.nova2fa_settings.last_verified %}
+        <p><strong>Last Verified:</strong> {{ user.nova2fa_settings.last_verified|date:"F d, Y H:i" }}</p>
+        {% endif %}
+    {% else %}
+        <p>
+            <span class="status status-disabled">DISABLED</span>
+            Your account is not protected by two-factor authentication.
+        </p>
+        <p style="margin-top: 10px;">
+            <a href="{% url 'nova2fa:settings' %}" class="btn">Enable 2FA Now</a>
+        </p>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

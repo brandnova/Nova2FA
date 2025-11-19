@@ -1,0 +1,167 @@
+# Installation Guide
+
+This guide will walk you through installing Nova2FA in your Django project.
+
+## Requirements
+
+Before installing Nova2FA, ensure you have:
+
+- Python 3.8 or higher
+- Django 4.2 or higher
+- A working Django project with authentication
+
+## Step 1: Install the Package
+
+Install Nova2FA using pip:
+```bash
+pip install nova2fa
+```
+
+This will install Nova2FA and its dependencies:
+- `pyotp` - For TOTP implementation
+- `qrcode` - For QR code generation
+- `Pillow` - For image processing
+
+## Step 2: Add to INSTALLED_APPS
+
+In your Django project's `settings.py`, add `nova2fa` to `INSTALLED_APPS`:
+```python
+INSTALLED_APPS = [
+    # Django apps
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    
+    # Your apps
+    'myapp',
+    
+    # Third-party apps
+    'nova2fa',  # Add this line
+]
+```
+
+!!! warning "Order Matters"
+    Make sure `nova2fa` is added **after** Django's built-in apps, especially `django.contrib.auth` and `django.contrib.sessions`.
+
+## Step 3: Add Middleware
+
+Add Nova2FA middleware to your `MIDDLEWARE` setting, right after `AuthenticationMiddleware`:
+```python
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'nova2fa.middleware.Nova2FAMiddleware',  # Add this line
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+```
+
+!!! danger "Critical Placement"
+    The middleware **must** come after `AuthenticationMiddleware` and `SessionMiddleware` to function correctly.
+
+## Step 4: Include URLs
+
+Add Nova2FA URLs to your project's main `urls.py`:
+```python
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('2fa/', include('nova2fa.urls')),  # Add this line
+    # ... your other URL patterns
+]
+```
+
+You can use any URL prefix you prefer (e.g., `'security/'`, `'mfa/'`, etc.).
+
+## Step 5: Run Migrations
+
+Create and apply Nova2FA database tables:
+```bash
+python manage.py migrate nova2fa
+```
+
+This creates two tables:
+- `nova2fa_usertwofactorsettings` - Stores user 2FA preferences
+- `nova2fa_emailotp` - Stores email OTP codes
+
+## Step 6: Configure Email (for Email OTP)
+
+If you plan to use Email OTP, ensure your Django email settings are configured in `settings.py`:
+```python
+# Example: Using Gmail SMTP
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@gmail.com'
+EMAIL_HOST_PASSWORD = 'your-app-password'
+DEFAULT_FROM_EMAIL = 'your-email@gmail.com'
+```
+
+For development, you can use the console backend:
+```python
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+```
+
+## Step 7: Add Basic Configuration
+
+Add minimal configuration to `settings.py`:
+```python
+# Nova2FA Configuration
+NOVA2FA_ENABLED_METHODS = ['email', 'totp']
+NOVA2FA_TOTP_ISSUER = 'YourApp'
+```
+
+See [Configuration Reference](configuration.md) for all available options.
+
+## Step 8: Verify Installation
+
+Start your development server:
+```bash
+python manage.py runserver
+```
+
+Navigate to `http://127.0.0.1:8000/2fa/settings/` (after logging in) to verify Nova2FA is installed correctly.
+
+## Next Steps
+
+- Follow the [Quick Start Tutorial](quickstart.md) to set up your first 2FA flow
+- Read the [Configuration Reference](configuration.md) to customize Nova2FA
+- Check out the [Customization Guide](customization.md) to style the templates
+
+## Troubleshooting
+
+### ImportError: No module named 'nova2fa'
+
+**Solution**: Ensure nova2fa is installed in your current Python environment:
+```bash
+pip list | grep nova2fa
+```
+
+### MiddlewareNotUsed Error
+
+**Solution**: Make sure the middleware is placed **after** `AuthenticationMiddleware` in your `MIDDLEWARE` setting.
+
+### Migration Errors
+
+**Solution**: If you see migration errors, try:
+```bash
+python manage.py migrate nova2fa --fake-initial
+```
+
+### Email OTP Not Sending
+
+**Solution**: Check your email configuration and ensure you can send emails:
+```bash
+python manage.py shell
+>>> from django.core.mail import send_mail
+>>> send_mail('Test', 'Test message', 'from@example.com', ['to@example.com'])
+```

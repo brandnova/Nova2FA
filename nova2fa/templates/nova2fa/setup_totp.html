@@ -1,0 +1,46 @@
+{% extends "nova2fa/base_2fa.html" %}
+
+{% block title %}Setup Authenticator App{% endblock %}
+
+{% block content %}
+<div class="nova2fa-card">
+    <h1>Setup Authenticator App</h1>
+    
+    <div class="nova2fa-mb-2">
+        <h2>Step 1: Scan QR Code</h2>
+        <p>Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.):</p>
+        <div class="nova2fa-text-center nova2fa-mt-1">
+            <img src="{{ qr_code_url }}" alt="QR Code" style="max-width: 200px;">
+        </div>
+    </div>
+    
+    <div class="nova2fa-mb-2">
+        <h2>Step 2: Enter Secret Key (Optional)</h2>
+        <p>If you can't scan the QR code, manually enter this secret key:</p>
+        <p><strong>{{ secret }}</strong></p>
+    </div>
+    
+    <div class="nova2fa-mb-2">
+        <h2>Step 3: Verify</h2>
+        <p>Enter the 6-digit code from your authenticator app:</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="nova2fa-form-group">
+                {{ form.code.label_tag }}
+                {{ form.code }}
+                {% if form.code.errors %}
+                    <div class="nova2fa-error-text">{{ form.code.errors.0 }}</div>
+                {% endif %}
+                <div class="nova2fa-help-text">Enter the 6-digit code from your authenticator app</div>
+            </div>
+            
+            <div class="nova2fa-form-group">
+                <button type="submit" class="nova2fa-button">Verify and Enable</button>
+                <a href="{% url 'nova2fa:setup' %}" class="nova2fa-button nova2fa-button-secondary">Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
