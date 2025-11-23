@@ -90,7 +90,8 @@ def setup_2fa(request):
             # Handle method-specific setup
             if method_code == 'totp':
                 setup_data = method.setup(request.user)
-                request.session['nova2fa_setup_secret'] = setup_data['secret']
+                request.session['nova2fa_setup_secret'] = setup_data['secret']  # Encrypted
+                request.session['nova2fa_setup_secret_display'] = setup_data['secret_display']  # Plain
                 request.session['nova2fa_qr_code_path'] = setup_data['qr_code_path']
                 return redirect('nova2fa:setup_totp')
             
@@ -125,7 +126,8 @@ def setup_totp(request):
         messages.error(request, "Setup session expired. Please start again.")
         return redirect('nova2fa:setup_2fa')
     
-    secret = request.session['nova2fa_setup_secret']
+    secret = request.session['nova2fa_setup_secret']  # Encrypted secret
+    secret_display = request.session.get('nova2fa_setup_secret_display', '')  # Plain text for display
     qr_code_path = request.session['nova2fa_qr_code_path']
     
     if not os.path.exists(qr_code_path):
@@ -140,11 +142,11 @@ def setup_totp(request):
             # Get TOTP method and verify
             method = get_method('totp')
             
-            # Temporarily store secret for verification
+            # Temporarily store encrypted secret for verification
             two_factor_settings, created = UserTwoFactorSettings.objects.get_or_create(
                 user=request.user
             )
-            two_factor_settings.totp_secret = secret
+            two_factor_settings.totp_secret = secret  # Store encrypted
             two_factor_settings.save()
             
             if method.verify(request.user, code):
@@ -155,13 +157,15 @@ def setup_totp(request):
                 # Enable 2FA
                 two_factor_settings.is_enabled = True
                 two_factor_settings.method = 'totp'
-                two_factor_settings.backup_codes = backup_data['codes']
+                two_factor_settings.backup_codes = backup_data['hashed_codes']  # Store hashed
                 two_factor_settings.last_verified = timezone.now()
                 two_factor_settings.save()
                 
                 # Clean up session
                 if 'nova2fa_setup_secret' in request.session:
                     del request.session['nova2fa_setup_secret']
+                if 'nova2fa_setup_secret_display' in request.session:
+                    del request.session['nova2fa_setup_secret_display']
                 
                 try:
                     os.remove(qr_code_path)
@@ -171,11 +175,14 @@ def setup_totp(request):
                 if 'nova2fa_qr_code_path' in request.session:
                     del request.session['nova2fa_qr_code_path']
                 
+                # Store plain text codes in session for one-time display
+                request.session['nova2fa_new_backup_codes'] = backup_data['codes']
+                
                 messages.success(
                     request,
-                    "Two-factor authentication has been enabled successfully."
+                    "Two-factor authentication has been enabled successfully. Please save your backup codes!"
                 )
-                return redirect('nova2fa:settings')
+                return redirect('nova2fa:view_backup_codes')
             else:
                 # Remove temporarily stored secret
                 two_factor_settings.totp_secret = None
@@ -186,7 +193,7 @@ def setup_totp(request):
     
     context = {
         'form': form,
-        'secret': secret,
+        'secret': secret_display,  # Show plain text for manual entry
         'qr_code_url': reverse('nova2fa:qr_code'),
     }
     
@@ -234,15 +241,18 @@ def verify_email_otp(request):
                 )
                 two_factor_settings.is_enabled = True
                 two_factor_settings.method = 'email'
-                two_factor_settings.backup_codes = backup_data['codes']
+                two_factor_settings.backup_codes = backup_data['hashed_codes']  # Store hashed
                 two_factor_settings.last_verified = timezone.now()
                 two_factor_settings.save()
                 
+                # Store plain text codes in session for one-time display
+                request.session['nova2fa_new_backup_codes'] = backup_data['codes']
+                
                 messages.success(
                     request,
-                    "Two-factor authentication has been enabled successfully."
+                    "Two-factor authentication has been enabled successfully. Please save your backup codes!"
                 )
-                return redirect('nova2fa:settings')
+                return redirect('nova2fa:view_backup_codes')
             else:
                 messages.error(
                     request,
@@ -361,6 +371,15 @@ def verify_2fa(request):
 
 def handle_backup_code_verification(request, two_factor_settings):
     """Handle backup code verification."""
+    # Check if account is locked
+    if two_factor_settings.is_locked():
+        lockout_time = (two_factor_settings.locked_until - timezone.now()).seconds // 60
+        messages.error(
+            request,
+            f"Account temporarily locked due to too many failed attempts. Please try again in {lockout_time} minutes."
+        )
+        return render(request, 'nova2fa/verify.html', {'method': 'backup', 'locked': True})
+    
     if request.method == 'POST':
         form = BackupCodeVerificationForm(request.POST)
         if form.is_valid():
@@ -380,7 +399,7 @@ def handle_backup_code_verification(request, two_factor_settings):
                 if 'nova2fa_next_url' in request.session:
                     del request.session['nova2fa_next_url']
                 
-                remaining_codes = len(two_factor_settings.get_available_backup_codes())
+                remaining_codes = two_factor_settings.get_available_backup_codes_count()
                 if remaining_codes == 0:
                     messages.warning(
                         request,
@@ -398,17 +417,24 @@ def handle_backup_code_verification(request, two_factor_settings):
                 )
                 return redirect(next_url)
             else:
-                messages.error(
-                    request,
-                    "Invalid or already used backup code. Please try again."
-                )
+                if two_factor_settings.is_locked():
+                    messages.error(
+                        request,
+                        "Too many failed attempts. Your account has been temporarily locked."
+                    )
+                else:
+                    messages.error(
+                        request,
+                        "Invalid or already used backup code. Please try again."
+                    )
     else:
         form = BackupCodeVerificationForm()
     
     context = {
         'method': 'backup',
         'form': form,
-        'available_codes_count': len(two_factor_settings.get_available_backup_codes()),
+        'available_codes_count': two_factor_settings.get_available_backup_codes_count(),
+        'failed_attempts': two_factor_settings.failed_attempts,
     }
     
     return render(request, 'nova2fa/verify.html', context)
@@ -608,17 +634,27 @@ def view_backup_codes(request):
         is_enabled=True
     )
     
-    backup_codes_status = []
-    for code in two_factor_settings.backup_codes:
-        backup_codes_status.append({
+    # Check if there are new codes to display (from setup)
+    new_codes = request.session.pop('nova2fa_new_backup_codes', None)
+    
+    if new_codes:
+        # Display new codes (plain text, one-time only)
+        backup_codes_status = [{
             'code': code,
-            'is_used': code in two_factor_settings.used_backup_codes
-        })
+            'is_used': False
+        } for code in new_codes]
+        show_codes = True
+    else:
+        # Codes are hashed, can't display them
+        backup_codes_status = []
+        show_codes = False
     
     context = {
         'backup_codes_status': backup_codes_status,
-        'available_count': len(two_factor_settings.get_available_backup_codes()),
+        'available_count': two_factor_settings.get_available_backup_codes_count(),
         'total_count': len(two_factor_settings.backup_codes),
+        'show_codes': show_codes,
+        'new_codes': new_codes is not None,
     }
     
     return render(request, 'nova2fa/backup_codes.html', context)
@@ -637,13 +673,16 @@ def regenerate_backup_codes(request):
     backup_method = get_method('backup')
     backup_data = backup_method.setup(request.user)
     
-    two_factor_settings.backup_codes = backup_data['codes']
+    two_factor_settings.backup_codes = backup_data['hashed_codes']  # Store hashed
     two_factor_settings.used_backup_codes = []
     two_factor_settings.save()
     
+    # Store plain text codes in session for one-time display
+    request.session['nova2fa_new_backup_codes'] = backup_data['codes']
+    
     messages.success(
         request,
-        "New backup codes have been generated. All previous codes are now invalid."
+        "New backup codes have been generated. All previous codes are now invalid. Please save these codes!"
     )
     return redirect('nova2fa:view_backup_codes')
 

@@ -17,17 +17,19 @@ settings = UserTwoFactorSettings.objects.get(user=user)
 
 #### Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `user` | ForeignKey | Reference to Django user |
-| `is_enabled` | BooleanField | Whether 2FA is enabled |
-| `method` | CharField | Active method ('email' or 'totp') |
-| `totp_secret` | CharField | TOTP secret key (if using TOTP) |
-| `backup_codes` | JSONField | List of backup codes |
-| `used_backup_codes` | JSONField | List of used backup codes |
-| `last_verified` | DateTimeField | Last verification timestamp |
-| `created_at` | DateTimeField | When settings were created |
-| `updated_at` | DateTimeField | Last update timestamp |
+| Field               | Type          | Description                              |
+| ------------------- | ------------- | ---------------------------------------- |
+| `user`              | ForeignKey    | Reference to Django user                 |
+| `is_enabled`        | BooleanField  | Whether 2FA is enabled                   |
+| `method`            | CharField     | Active method ('email' or 'totp')        |
+| `totp_secret`       | CharField     | TOTP secret key (encrypted in v1.1.0+)   |
+| `backup_codes`      | JSONField     | List of backup codes (hashed in v1.1.0+) |
+| `used_backup_codes` | JSONField     | List of used backup codes                |
+| `failed_attempts`   | IntegerField  | Failed verification attempts (v1.1.0+)   |
+| `locked_until`      | DateTimeField | Account lockout expiration (v1.1.0+)     |
+| `last_verified`     | DateTimeField | Last verification timestamp              |
+| `created_at`        | DateTimeField | When settings were created               |
+| `updated_at`        | DateTimeField | Last update timestamp                    |
 
 #### Methods
 
@@ -67,6 +69,7 @@ if settings.verify_backup_code('ABCD1234'):
 ```
 
 **Parameters:**
+
 - `code` (str): The backup code to verify
 
 **Returns:** `bool` - True if valid, False otherwise
@@ -113,13 +116,13 @@ otp = EmailOTP.objects.filter(user=user).latest('created_at')
 
 #### Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `user` | ForeignKey | Reference to Django user |
-| `code` | CharField | The 6-digit OTP code |
-| `created_at` | DateTimeField | When OTP was created |
-| `expires_at` | DateTimeField | When OTP expires |
-| `is_used` | BooleanField | Whether OTP has been used |
+| Field        | Type          | Description               |
+| ------------ | ------------- | ------------------------- |
+| `user`       | ForeignKey    | Reference to Django user  |
+| `code`       | CharField     | The 6-digit OTP code      |
+| `created_at` | DateTimeField | When OTP was created      |
+| `expires_at` | DateTimeField | When OTP expires          |
+| `is_used`    | BooleanField  | Whether OTP has been used |
 
 #### Methods
 
@@ -163,6 +166,7 @@ register_method('sms', SMSMethod())
 ```
 
 **Parameters:**
+
 - `code` (str): Unique identifier for the method
 - `handler` (Base2FAMethod): Instance of method handler
 
@@ -183,6 +187,7 @@ if method:
 ```
 
 **Parameters:**
+
 - `code` (str): Method identifier
 
 **Returns:** `Base2FAMethod` instance or `None`
@@ -217,11 +222,11 @@ from nova2fa.methods.base import Base2FAMethod
 class CustomMethod(Base2FAMethod):
     name = "custom"
     verbose_name = "Custom Method"
-    
+
     def send(self, user):
         # Implementation
         return True
-    
+
     def verify(self, user, token):
         # Implementation
         return True
@@ -239,6 +244,7 @@ class CustomMethod(Base2FAMethod):
 Send the 2FA token to the user.
 
 **Parameters:**
+
 - `user`: Django user instance
 
 **Returns:** `bool` - True if sent successfully
@@ -250,6 +256,7 @@ Send the 2FA token to the user.
 Verify the provided token.
 
 **Parameters:**
+
 - `user`: Django user instance
 - `token` (str): Token to verify
 
@@ -264,6 +271,7 @@ Verify the provided token.
 Perform setup for this method (e.g., generate secret).
 
 **Parameters:**
+
 - `user`: Django user instance
 
 **Returns:** `dict` - Setup data
@@ -275,6 +283,7 @@ Perform setup for this method (e.g., generate secret).
 Check if method is configured for user.
 
 **Parameters:**
+
 - `user`: Django user instance
 
 **Returns:** `bool`
@@ -348,17 +357,17 @@ from nova2fa.methods import EmailOTPMethod, BackupCodesMethod
 def enable_email_2fa(user):
     """Enable email 2FA for a user."""
     settings, created = UserTwoFactorSettings.objects.get_or_create(user=user)
-    
+
     # Generate backup codes
     backup_method = BackupCodesMethod()
     backup_data = backup_method.setup(user)
-    
+
     # Enable 2FA
     settings.is_enabled = True
     settings.method = 'email'
     settings.backup_codes = backup_data['codes']
     settings.save()
-    
+
     return settings
 ```
 
@@ -372,11 +381,11 @@ def get_2fa_stats():
     """Get 2FA adoption statistics."""
     total_users = UserTwoFactorSettings.objects.count()
     enabled = UserTwoFactorSettings.objects.filter(is_enabled=True).count()
-    
+
     methods = UserTwoFactorSettings.objects.filter(
         is_enabled=True
     ).values('method').annotate(count=Count('method'))
-    
+
     return {
         'total_users': total_users,
         'enabled': enabled,
@@ -462,29 +471,29 @@ def security_dashboard(request):
         settings = UserTwoFactorSettings.objects.get(user=request.user)
         has_2fa = settings.is_enabled
         method = settings.get_method_display() if has_2fa else None
-        
+
         # Get recent OTP attempts
         recent_otps = EmailOTP.objects.filter(
             user=request.user,
             created_at__gte=timezone.now() - timedelta(days=7)
         ).count()
-        
+
         # Check backup codes
         backup_codes_remaining = len(settings.get_available_backup_codes())
-        
+
     except UserTwoFactorSettings.DoesNotExist:
         has_2fa = False
         method = None
         recent_otps = 0
         backup_codes_remaining = 0
-    
+
     context = {
         'has_2fa': has_2fa,
         'method': method,
         'recent_otps': recent_otps,
         'backup_codes_remaining': backup_codes_remaining,
     }
-    
+
     return render(request, 'dashboard.html', context)
 ```
 

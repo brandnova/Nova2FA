@@ -18,7 +18,7 @@
                 Change Method
             </a>
             <a href="{% url 'nova2fa:view_backup_codes' %}" class="nova2fa-button nova2fa-button-secondary">
-                View Backup Codes
+                Manage Backup Codes ({{ two_factor_settings.get_available_backup_codes_count }} available)
             </a>
             <a href="{% url 'nova2fa:disable' %}" class="nova2fa-button nova2fa-button-danger">
                 Disable 2FA

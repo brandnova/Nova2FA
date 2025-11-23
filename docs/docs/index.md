@@ -17,6 +17,7 @@ Nova2FA provides a complete 2FA solution for Django projects with:
 - [Installation Guide](installation.md)
 - [Quick Start Tutorial](quickstart.md)
 - [Configuration Reference](configuration.md)
+- [Security Guide](security.md) ⭐ New in v1.1.0
 - [Customization Guide](customization.md)
 - [API Reference](api-reference.md)
 
@@ -41,6 +42,9 @@ Unlike other 2FA packages, Nova2FA is designed from the ground up to be:
 
 ### Security Features
 
+- Encrypted TOTP secrets (v1.1.0+)
+- Hashed backup codes (v1.1.0+)
+- Account lockout after failed attempts (v1.1.0+)
 - Configurable verification windows
 - Built-in rate limiting
 - Session-based verification

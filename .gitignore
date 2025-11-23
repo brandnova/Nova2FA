@@ -19,42 +19,95 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # Django
 *.log
 local_settings.py
 db.sqlite3
+db.sqlite3-journal
 media/
+staticfiles/
 
 # Virtual Environment
 venv/
+.venv/
 env/
 ENV/
+env.bak/
+venv.bak/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
+.AppleDouble
+.LSOverride
 
 # Testing
 .pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+.cache
+
+# Migrations (generated)
+migrations/
+*/migrations/*.py
+!*/migrations/__init__.py
 
 # Temporary files
 *.tmp
 *.temp
+*.bak
 qr_codes/
-migrations/
+*.pyc~
 
-# Custom
+# Documentation build
+site/
+docs/_build/
+docs/.doctrees/
+
+# Custom project files
 README copy.md 
 Testing and Deployment.md
 TODO
 Code Review.md
-site
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Package manager
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
