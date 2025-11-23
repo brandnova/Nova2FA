@@ -155,7 +155,7 @@
 <pre><code class="language-html">&lt;!-- base.html or profile.html --&gt;
 {% if user.is_authenticated %}
 &lt;nav&gt;
-    &lt;a href=&quot;{% url 'nova2fa:settings' %}&quot;&gt;Security Settings&lt;/a&gt;
+  &lt;a href=&quot;{% url 'nova2fa:settings' %}&quot;&gt;Security Settings&lt;/a&gt;
 &lt;/nav&gt;
 {% endif %}
 </code></pre>
@@ -166,7 +166,17 @@ NOVA2FA_ENABLED_METHODS = ['email', 'totp']  # Enable both methods
 NOVA2FA_TOTP_ISSUER = 'MyApp'  # Your app name (shown in authenticator apps)
 NOVA2FA_VERIFICATION_WINDOW_DAYS = 14  # User stays verified for 14 days
 NOVA2FA_EMAIL_OTP_EXPIRY_MINUTES = 10  # Email codes expire after 10 minutes
+
+# Security (v1.1.0+)
+NOVA2FA_SECRET_KEY = 'your-secret-encryption-key'  # Required for TOTP encryption
+NOVA2FA_MAX_ATTEMPTS = 5  # Account lockout after 5 failed attempts
+NOVA2FA_LOCKOUT_DURATION_MINUTES = 15  # 15 minute lockout duration
 </code></pre>
+<p>!!! tip "Generate Encryption Key"
+Generate a secure key with:
+<code>python
+    from django.core.management.utils import get_random_secret_key
+    print(get_random_secret_key())</code></p>
 <h2 id="step-3-test-the-flow">Step 3: Test the Flow</h2>
 <h3 id="31-enable-2fa">3.1 Enable 2FA</h3>
 <ol>
@@ -183,7 +193,7 @@ NOVA2FA_EMAIL_OTP_EXPIRY_MINUTES = 10  # Email codes expire after 10 minutes
 <li>Check your email (or console if using console backend)</li>
 <li>Enter the 6-digit code</li>
 <li>Click "Verify and Enable"</li>
-<li>Save your backup codes!</li>
+<li><strong>Save your backup codes!</strong> (v1.1.0: shown only once)</li>
 </ol>
 <p><strong>Option B: Authenticator App (TOTP)</strong></p>
 <ol>
@@ -193,8 +203,10 @@ NOVA2FA_EMAIL_OTP_EXPIRY_MINUTES = 10  # Email codes expire after 10 minutes
 <li>Or manually enter the secret key shown</li>
 <li>Enter the 6-digit code from your app</li>
 <li>Click "Verify and Enable"</li>
-<li>Save your backup codes!</li>
+<li><strong>Save your backup codes!</strong> (v1.1.0: shown only once)</li>
 </ol>
+<p>!!! warning "Save Backup Codes (v1.1.0+)"
+Backup codes are displayed <strong>only once</strong> for security. Save them in a secure location (password manager, printed copy in safe, etc.). You won't be able to view them again!</p>
 <h3 id="33-test-verification">3.3 Test Verification</h3>
 <ol>
 <li>Log out of your application</li>
@@ -228,50 +240,36 @@ if user.nova2fa_settings.is_enabled:
 <h2 id="step-5-customize-the-experience">Step 5: Customize the Experience</h2>
 <h3 id="51-override-templates">5.1 Override Templates</h3>
 <p>Create <code>templates/nova2fa/settings.html</code> in your project:</p>
-<pre><code class="language-html">{% extends &quot;base.html&quot; %}
-
-{% block content %}
+<pre><code class="language-html">{% extends &quot;base.html&quot; %} {% block content %}
 &lt;div class=&quot;container&quot;&gt;
-    &lt;h1&gt;Security Settings&lt;/h1&gt;
+  &lt;h1&gt;Security Settings&lt;/h1&gt;
 
-    {% if two_factor_settings.is_enabled %}
-        &lt;div class=&quot;alert alert-success&quot;&gt;
-            Two-Factor Authentication is enabled
-        &lt;/div&gt;
-        &lt;p&gt;Method: {{ two_factor_settings.get_method_display }}&lt;/p&gt;
+  {% if two_factor_settings.is_enabled %}
+  &lt;div class=&quot;alert alert-success&quot;&gt;Two-Factor Authentication is enabled&lt;/div&gt;
+  &lt;p&gt;Method: {{ two_factor_settings.get_method_display }}&lt;/p&gt;
 
-        &lt;a href=&quot;{% url 'nova2fa:disable' %}&quot; class=&quot;btn btn-danger&quot;&gt;
-            Disable 2FA
-        &lt;/a&gt;
-    {% else %}
-        &lt;div class=&quot;alert alert-warning&quot;&gt;
-            Two-Factor Authentication is not enabled
-        &lt;/div&gt;
+  &lt;a href=&quot;{% url 'nova2fa:disable' %}&quot; class=&quot;btn btn-danger&quot;&gt; Disable 2FA &lt;/a&gt;
+  {% else %}
+  &lt;div class=&quot;alert alert-warning&quot;&gt;
+    Two-Factor Authentication is not enabled
+  &lt;/div&gt;
 
-        &lt;a href=&quot;{% url 'nova2fa:setup' %}&quot; class=&quot;btn btn-primary&quot;&gt;
-            Enable 2FA
-        &lt;/a&gt;
-    {% endif %}
+  &lt;a href=&quot;{% url 'nova2fa:setup' %}&quot; class=&quot;btn btn-primary&quot;&gt; Enable 2FA &lt;/a&gt;
+  {% endif %}
 &lt;/div&gt;
 {% endblock %}
 </code></pre>
 <h3 id="52-add-custom-styling">5.2 Add Custom Styling</h3>
 <p>Create a custom base template at <code>templates/nova2fa/base_2fa.html</code>:</p>
-<pre><code class="language-html">{% extends &quot;base.html&quot; %}
-
-{% block content %}
+<pre><code class="language-html">{% extends &quot;base.html&quot; %} {% block content %}
 &lt;div class=&quot;nova2fa-container&quot;&gt;
-    {% if messages %}
-    &lt;div class=&quot;messages&quot;&gt;
-        {% for message in messages %}
-        &lt;div class=&quot;alert alert-{{ message.tags }}&quot;&gt;
-            {{ message }}
-        &lt;/div&gt;
-        {% endfor %}
-    &lt;/div&gt;
-    {% endif %}
-
-    {% block nova2fa_content %}{% endblock %}
+  {% if messages %}
+  &lt;div class=&quot;messages&quot;&gt;
+    {% for message in messages %}
+    &lt;div class=&quot;alert alert-{{ message.tags }}&quot;&gt;{{ message }}&lt;/div&gt;
+    {% endfor %}
+  &lt;/div&gt;
+  {% endif %} {% block nova2fa_content %}{% endblock %}
 &lt;/div&gt;
 {% endblock %}
 </code></pre>

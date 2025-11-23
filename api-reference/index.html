@@ -167,17 +167,27 @@ settings = UserTwoFactorSettings.objects.get(user=user)
 <tr>
 <td><code>totp_secret</code></td>
 <td>CharField</td>
-<td>TOTP secret key (if using TOTP)</td>
+<td>TOTP secret key (encrypted in v1.1.0+)</td>
 </tr>
 <tr>
 <td><code>backup_codes</code></td>
 <td>JSONField</td>
-<td>List of backup codes</td>
+<td>List of backup codes (hashed in v1.1.0+)</td>
 </tr>
 <tr>
 <td><code>used_backup_codes</code></td>
 <td>JSONField</td>
 <td>List of used backup codes</td>
+</tr>
+<tr>
+<td><code>failed_attempts</code></td>
+<td>IntegerField</td>
+<td>Failed verification attempts (v1.1.0+)</td>
+</tr>
+<tr>
+<td><code>locked_until</code></td>
+<td>DateTimeField</td>
+<td>Account lockout expiration (v1.1.0+)</td>
 </tr>
 <tr>
 <td><code>last_verified</code></td>
@@ -216,8 +226,10 @@ settings = UserTwoFactorSettings.objects.get(user=user)
 <pre><code class="language-python">if settings.verify_backup_code('ABCD1234'):
     print(&quot;Valid backup code!&quot;)
 </code></pre>
-<p><strong>Parameters:</strong>
-- <code>code</code> (str): The backup code to verify</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>code</code> (str): The backup code to verify</li>
+</ul>
 <p><strong>Returns:</strong> <code>bool</code> - True if valid, False otherwise</p>
 <hr />
 <p><strong><code>get_available_backup_codes()</code></strong></p>
@@ -302,9 +314,11 @@ from myapp.methods import SMSMethod
 
 register_method('sms', SMSMethod())
 </code></pre>
-<p><strong>Parameters:</strong>
-- <code>code</code> (str): Unique identifier for the method
-- <code>handler</code> (Base2FAMethod): Instance of method handler</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>code</code> (str): Unique identifier for the method</li>
+<li><code>handler</code> (Base2FAMethod): Instance of method handler</li>
+</ul>
 <p><strong>Returns:</strong> <code>None</code></p>
 <hr />
 <h3 id="get_method">get_method()</h3>
@@ -315,8 +329,10 @@ method = get_method('email')
 if method:
     method.send(user)
 </code></pre>
-<p><strong>Parameters:</strong>
-- <code>code</code> (str): Method identifier</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>code</code> (str): Method identifier</li>
+</ul>
 <p><strong>Returns:</strong> <code>Base2FAMethod</code> instance or <code>None</code></p>
 <hr />
 <h3 id="get_enabled_methods">get_enabled_methods()</h3>
@@ -354,28 +370,36 @@ class CustomMethod(Base2FAMethod):
 <h4 id="required-methods">Required Methods</h4>
 <p><strong><code>send(user)</code></strong></p>
 <p>Send the 2FA token to the user.</p>
-<p><strong>Parameters:</strong>
-- <code>user</code>: Django user instance</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>user</code>: Django user instance</li>
+</ul>
 <p><strong>Returns:</strong> <code>bool</code> - True if sent successfully</p>
 <hr />
 <p><strong><code>verify(user, token)</code></strong></p>
 <p>Verify the provided token.</p>
-<p><strong>Parameters:</strong>
-- <code>user</code>: Django user instance
-- <code>token</code> (str): Token to verify</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>user</code>: Django user instance</li>
+<li><code>token</code> (str): Token to verify</li>
+</ul>
 <p><strong>Returns:</strong> <code>bool</code> - True if valid</p>
 <hr />
 <h4 id="optional-methods">Optional Methods</h4>
 <p><strong><code>setup(user)</code></strong></p>
 <p>Perform setup for this method (e.g., generate secret).</p>
-<p><strong>Parameters:</strong>
-- <code>user</code>: Django user instance</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>user</code>: Django user instance</li>
+</ul>
 <p><strong>Returns:</strong> <code>dict</code> - Setup data</p>
 <hr />
 <p><strong><code>is_configured(user)</code></strong></p>
 <p>Check if method is configured for user.</p>
-<p><strong>Parameters:</strong>
-- <code>user</code>: Django user instance</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>user</code>: Django user instance</li>
+</ul>
 <p><strong>Returns:</strong> <code>bool</code></p>
 <hr />
 <h3 id="emailotpmethod">EmailOTPMethod</h3>

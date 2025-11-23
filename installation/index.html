@@ -110,7 +110,7 @@
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#step-5-run-migrations" class="nav-link">Step 5: Run Migrations</a>
+            <li class="nav-item" data-bs-level="2"><a href="#step-5-security-configuration-v110" class="nav-link">Step 5: Security Configuration (v1.1.0+)</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -118,7 +118,11 @@
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#step-7-add-basic-configuration" class="nav-link">Step 7: Add Basic Configuration</a>
+            <li class="nav-item" data-bs-level="2"><a href="#step-7-run-migrations" class="nav-link">Step 7: Run Migrations</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#step-8-basic-configuration" class="nav-link">Step 8: Basic Configuration</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -131,6 +135,10 @@
               </ul>
             </li>
             <li class="nav-item" data-bs-level="2"><a href="#troubleshooting" class="nav-link">Troubleshooting</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#migrating-from-v10x-to-v110" class="nav-link">Migrating from v1.0.x to v1.1.0</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -154,10 +162,13 @@
 <p>Install Nova2FA using pip:</p>
 <pre><code class="language-bash">pip install nova2fa
 </code></pre>
-<p>This will install Nova2FA and its dependencies:
-- <code>pyotp</code> - For TOTP implementation
-- <code>qrcode</code> - For QR code generation
-- <code>Pillow</code> - For image processing</p>
+<p>This will install Nova2FA and its dependencies:</p>
+<ul>
+<li><code>pyotp</code> - For TOTP implementation</li>
+<li><code>qrcode</code> - For QR code generation</li>
+<li><code>Pillow</code> - For image processing</li>
+<li><code>cryptography</code> - For encryption (v1.1.0+)</li>
+</ul>
 <h2 id="step-2-add-to-installed_apps">Step 2: Add to INSTALLED_APPS</h2>
 <p>In your Django project's <code>settings.py</code>, add <code>nova2fa</code> to <code>INSTALLED_APPS</code>:</p>
 <pre><code class="language-python">INSTALLED_APPS = [
@@ -177,7 +188,7 @@
 ]
 </code></pre>
 <p>!!! warning "Order Matters"
-    Make sure <code>nova2fa</code> is added <strong>after</strong> Django's built-in apps, especially <code>django.contrib.auth</code> and <code>django.contrib.sessions</code>.</p>
+Make sure <code>nova2fa</code> is added <strong>after</strong> Django's built-in apps, especially <code>django.contrib.auth</code> and <code>django.contrib.sessions</code>.</p>
 <h2 id="step-3-add-middleware">Step 3: Add Middleware</h2>
 <p>Add Nova2FA middleware to your <code>MIDDLEWARE</code> setting, right after <code>AuthenticationMiddleware</code>:</p>
 <pre><code class="language-python">MIDDLEWARE = [
@@ -192,7 +203,7 @@
 ]
 </code></pre>
 <p>!!! danger "Critical Placement"
-    The middleware <strong>must</strong> come after <code>AuthenticationMiddleware</code> and <code>SessionMiddleware</code> to function correctly.</p>
+The middleware <strong>must</strong> come after <code>AuthenticationMiddleware</code> and <code>SessionMiddleware</code> to function correctly.</p>
 <h2 id="step-4-include-urls">Step 4: Include URLs</h2>
 <p>Add Nova2FA URLs to your project's main <code>urls.py</code>:</p>
 <pre><code class="language-python">from django.contrib import admin
@@ -205,29 +216,46 @@ urlpatterns = [
 ]
 </code></pre>
 <p>You can use any URL prefix you prefer (e.g., <code>'security/'</code>, <code>'mfa/'</code>, etc.).</p>
-<h2 id="step-5-run-migrations">Step 5: Run Migrations</h2>
-<p>Create and apply Nova2FA database tables:</p>
-<pre><code class="language-bash">python manage.py migrate nova2fa
+<h2 id="step-5-security-configuration-v110">Step 5: Security Configuration (v1.1.0+)</h2>
+<p>!!! important "Required for v1.1.0+"
+Nova2FA v1.1.0 introduces encryption for TOTP secrets. Configure the encryption key in <code>settings.py</code>:</p>
+<pre><code class="language-python"># Optional: Dedicated encryption key for Nova2FA
+# If not set, Django's SECRET_KEY will be used
+NOVA2FA_SECRET_KEY = 'your-secret-encryption-key-here'
+
+# Optional: Brute force protection settings
+NOVA2FA_MAX_ATTEMPTS = 5  # Max failed verification attempts (default: 5)
+NOVA2FA_LOCKOUT_DURATION_MINUTES = 15  # Account lockout duration (default: 15)
 </code></pre>
-<p>This creates two tables:
-- <code>nova2fa_usertwofactorsettings</code> - Stores user 2FA preferences
-- <code>nova2fa_emailotp</code> - Stores email OTP codes</p>
+<p>!!! warning "Security Best Practice"
+Use a separate <code>NOVA2FA_SECRET_KEY</code> instead of reusing <code>SECRET_KEY</code>. Generate a strong key:
+<code>python
+    from django.core.management.utils import get_random_secret_key
+    print(get_random_secret_key())</code></p>
 <h2 id="step-6-configure-email-for-email-otp">Step 6: Configure Email (for Email OTP)</h2>
-<p>If you plan to use Email OTP, ensure your Django email settings are configured in <code>settings.py</code>:</p>
-<pre><code class="language-python"># Example: Using Gmail SMTP
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+<p>If you plan to use Email OTP, configure your email backend in <code>settings.py</code>:</p>
+<pre><code class="language-python">EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'your-email@gmail.com'
 EMAIL_HOST_PASSWORD = 'your-app-password'
-DEFAULT_FROM_EMAIL = 'your-email@gmail.com'
+```DEFAULT_FROM_EMAIL = 'your-email@gmail.com'
 </code></pre>
 <p>For development, you can use the console backend:</p>
 <pre><code class="language-python">EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 </code></pre>
-<h2 id="step-7-add-basic-configuration">Step 7: Add Basic Configuration</h2>
-<p>Add minimal configuration to <code>settings.py</code>:</p>
+<h2 id="step-7-run-migrations">Step 7: Run Migrations</h2>
+<p>Create and apply database migrations:</p>
+<pre><code class="language-bash">python manage.py migrate nova2fa
+</code></pre>
+<p>This creates two tables:</p>
+<ul>
+<li><code>nova2fa_usertwofactorsettings</code> - Stores user 2FA preferences</li>
+<li><code>nova2fa_emailotp</code> - Stores email OTP codes</li>
+</ul>
+<h2 id="step-8-basic-configuration">Step 8: Basic Configuration</h2>
+<p>Add basic Nova2FA configuration to your <code>settings.py</code>:</p>
 <pre><code class="language-python"># Nova2FA Configuration
 NOVA2FA_ENABLED_METHODS = ['email', 'totp']
 NOVA2FA_TOTP_ISSUER = 'YourApp'
@@ -260,7 +288,87 @@ NOVA2FA_TOTP_ISSUER = 'YourApp'
 <pre><code class="language-bash">python manage.py shell
 &gt;&gt;&gt; from django.core.mail import send_mail
 &gt;&gt;&gt; send_mail('Test', 'Test message', 'from@example.com', ['to@example.com'])
-</code></pre></div>
+</code></pre>
+<hr />
+<h2 id="migrating-from-v10x-to-v110">Migrating from v1.0.x to v1.1.0</h2>
+<p>!!! warning "Breaking Changes in v1.1.0"
+Version 1.1.0 introduces security enhancements that require user action.</p>
+<h3 id="what-changed">What Changed</h3>
+<p><strong>Security Enhancements:</strong></p>
+<ul>
+<li>TOTP secrets are now encrypted at rest</li>
+<li>Backup codes are now hashed (like passwords)</li>
+<li>Account lockout after failed verification attempts</li>
+<li>Rate limiting on verification endpoints</li>
+</ul>
+<h3 id="migration-steps">Migration Steps</h3>
+<h4 id="1-update-the-package">1. Update the Package</h4>
+<pre><code class="language-bash">pip install --upgrade nova2fa
+</code></pre>
+<h4 id="2-configure-encryption-key">2. Configure Encryption Key</h4>
+<p>Add to your <code>settings.py</code>:</p>
+<pre><code class="language-python"># Generate a new key with:
+# from django.core.management.utils import get_random_secret_key
+# print(get_random_secret_key())
+
+NOVA2FA_SECRET_KEY = 'your-new-encryption-key-here'
+</code></pre>
+<h4 id="3-run-migrations">3. Run Migrations</h4>
+<pre><code class="language-bash">python manage.py migrate nova2fa
+</code></pre>
+<p>This adds new fields:</p>
+<ul>
+<li><code>failed_attempts</code> - Tracks failed verification attempts</li>
+<li><code>locked_until</code> - Stores account lockout expiration</li>
+<li><code>totp_secret</code> max_length increased to 512 (for encrypted values)</li>
+</ul>
+<h4 id="4-notify-users">4. Notify Users</h4>
+<p>!!! important "User Action Required"
+<strong>All users must regenerate their backup codes</strong> after the upgrade.</p>
+<p>Old backup codes (plain text) will no longer work. Users should:</p>
+<ol>
+<li>Log in to their account</li>
+<li>Navigate to 2FA settings</li>
+<li>Click "Regenerate Backup Codes"</li>
+<li>Save the new codes securely</li>
+</ol>
+<p><strong>TOTP secrets:</strong> Existing TOTP setups will continue to work (backward compatible), but new setups will use encryption.</p>
+<h4 id="5-update-templates-optional">5. Update Templates (Optional)</h4>
+<p>If you've customized Nova2FA templates, review them for:</p>
+<ul>
+<li>New lockout messages</li>
+<li>One-time backup code display behavior</li>
+<li>Failed attempts counter display</li>
+</ul>
+<h3 id="rollback-plan">Rollback Plan</h3>
+<p>If you need to rollback to v1.0.x:</p>
+<pre><code class="language-bash"># 1. Downgrade package
+pip install nova2fa==1.0.0
+
+# 2. Revert migrations
+python manage.py migrate nova2fa 0001
+
+# 3. Remove new settings from settings.py
+# Remove: NOVA2FA_SECRET_KEY, NOVA2FA_MAX_ATTEMPTS, NOVA2FA_LOCKOUT_DURATION_MINUTES
+</code></pre>
+<p>!!! caution
+After rollback, users will need to regenerate backup codes again.</p>
+<h3 id="testing-the-migration">Testing the Migration</h3>
+<p>After migrating, test these scenarios:</p>
+<ol>
+<li><strong>TOTP Verification</strong> - Existing TOTP should still work</li>
+<li><strong>Backup Codes</strong> - Old codes won't work (expected)</li>
+<li><strong>New Setup</strong> - New TOTP setups should use encryption</li>
+<li><strong>Account Lockout</strong> - Test 5 failed attempts triggers lockout</li>
+<li><strong>Backup Code Regeneration</strong> - Users can generate new hashed codes</li>
+</ol>
+<h3 id="need-help">Need Help?</h3>
+<p>If you encounter issues during migration:</p>
+<ol>
+<li>Check the <a href="https://github.com/yourusername/nova2fa/blob/main/CHANGELOG.md">CHANGELOG</a></li>
+<li>Review the <a href="../security/">Security Guide</a></li>
+<li>Open an issue on <a href="https://github.com/yourusername/nova2fa/issues">GitHub</a></li>
+</ol></div>
             </div>
         </div>
 

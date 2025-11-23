@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Security Guide - Nova2FA Documentation</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../css/brands.min.css" rel="stylesheet">
+        <link href="../css/solid.min.css" rel="stylesheet">
+        <link href="../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">Nova2FA Documentation</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../installation/" class="nav-link">Installation</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../quickstart/" class="nav-link">Quickstart</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../configuration/" class="nav-link">Configuration</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../customization/" class="nav-link">Customization</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../api-reference/" class="nav-link">API Reference</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#security-guide" class="nav-link">Security Guide</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#security-features" class="nav-link">Security Features</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#security-architecture" class="nav-link">Security Architecture</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#threat-model" class="nav-link">Threat Model</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#best-practices" class="nav-link">Best Practices</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#compliance-considerations" class="nav-link">Compliance Considerations</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#security-checklist" class="nav-link">Security Checklist</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#incident-response" class="nav-link">Incident Response</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#future-enhancements" class="nav-link">Future Enhancements</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#references" class="nav-link">References</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="security-guide">Security Guide</h1>
+<p>Nova2FA v1.1.0 implements enterprise-grade security features to protect user accounts. This guide explains the security architecture and best practices.</p>
+<h2 id="security-features">Security Features</h2>
+<h3 id="encryption-at-rest">🔐 Encryption at Rest</h3>
+<p><strong>TOTP Secrets</strong> are encrypted before storage using Fernet symmetric encryption (AES-128).</p>
+<p><strong>How it works:</strong></p>
+<ol>
+<li>User sets up TOTP with authenticator app</li>
+<li>Secret is generated and encrypted with <code>NOVA2FA_SECRET_KEY</code></li>
+<li>Encrypted value stored in database (max 512 characters)</li>
+<li>Decrypted only during verification</li>
+</ol>
+<p><strong>Configuration:</strong></p>
+<pre><code class="language-python"># settings.py
+NOVA2FA_SECRET_KEY = 'your-secret-encryption-key'  # Required for v1.1.0+
+</code></pre>
+<p>!!! tip "Best Practice"
+Use a dedicated encryption key separate from Django's <code>SECRET_KEY</code>. If <code>NOVA2FA_SECRET_KEY</code> is not set, it falls back to <code>SECRET_KEY</code>.</p>
+<h3 id="password-hashing">🔒 Password Hashing</h3>
+<p><strong>Backup Codes</strong> are hashed using Django's password hashers (PBKDF2 by default).</p>
+<p><strong>How it works:</strong></p>
+<ol>
+<li>8 backup codes generated during setup</li>
+<li>Each code hashed with <code>make_password()</code></li>
+<li>Only hashed values stored in database</li>
+<li>Verification uses <code>check_password()</code></li>
+<li>Used codes tracked separately</li>
+</ol>
+<p><strong>Why this matters:</strong></p>
+<ul>
+<li>Database breach doesn't expose usable codes</li>
+<li>Codes cannot be reversed or recovered</li>
+<li>Same security level as user passwords</li>
+</ul>
+<h3 id="brute-force-protection">🛡️ Brute Force Protection</h3>
+<p><strong>Account Lockout</strong> prevents unlimited verification attempts.</p>
+<p><strong>Default Settings:</strong></p>
+<pre><code class="language-python">NOVA2FA_MAX_ATTEMPTS = 5  # Failed attempts before lockout
+NOVA2FA_LOCKOUT_DURATION_MINUTES = 15  # Lockout duration
+</code></pre>
+<p><strong>How it works:</strong></p>
+<ol>
+<li>Failed verification increments <code>failed_attempts</code> counter</li>
+<li>After 5 failures, account locked for 15 minutes</li>
+<li><code>locked_until</code> timestamp set</li>
+<li>Successful verification resets counter</li>
+<li>Lockout applies to all verification methods</li>
+</ol>
+<p><strong>Lockout applies to:</strong></p>
+<ul>
+<li>TOTP verification</li>
+<li>Email OTP verification</li>
+<li>Backup code verification</li>
+</ul>
+<h3 id="rate-limiting">⏱️ Rate Limiting</h3>
+<p><strong>Verification endpoints</strong> are rate-limited to prevent abuse.</p>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li>Uses Django's cache framework</li>
+<li>Default: 10 attempts per 15 minutes per user</li>
+<li>Applied via <code>@rate_limit</code> decorator</li>
+<li>Works with account lockout for defense-in-depth</li>
+</ul>
+<h3 id="one-time-backup-code-display">🔑 One-Time Backup Code Display</h3>
+<p><strong>Backup codes</strong> shown only once after generation.</p>
+<p><strong>Security benefits:</strong></p>
+<ul>
+<li>Codes displayed immediately after generation</li>
+<li>Stored in session temporarily</li>
+<li>Removed after first view</li>
+<li>Forces users to save codes securely</li>
+<li>Prevents casual browsing of codes</li>
+</ul>
+<p><strong>User flow:</strong></p>
+<ol>
+<li>User enables 2FA or regenerates codes</li>
+<li>Codes displayed once with save prompt</li>
+<li>Codes removed from session</li>
+<li>Only count of available codes shown afterward</li>
+</ol>
+<h2 id="security-architecture">Security Architecture</h2>
+<h3 id="data-flow-diagram">Data Flow Diagram</h3>
+<pre><code>┌─────────────┐
+│    User     │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────────────────────┐
+│  TOTP Setup                         │
+│  1. Generate secret (plain)         │
+│  2. Encrypt with NOVA2FA_SECRET_KEY │
+│  3. Store encrypted in DB           │
+│  4. Show QR code (plain for scan)   │
+└─────────────────────────────────────┘
+       │
+       ▼
+┌─────────────────────────────────────┐
+│  TOTP Verification                  │
+│  1. Retrieve encrypted secret       │
+│  2. Decrypt with key                │
+│  3. Verify token                    │
+│  4. Reset/increment failed attempts │
+└─────────────────────────────────────┘
+</code></pre>
+<h3 id="database-security">Database Security</h3>
+<p><strong>Encrypted Fields:</strong></p>
+<ul>
+<li><code>totp_secret</code> (512 chars) - Fernet encrypted</li>
+</ul>
+<p><strong>Hashed Fields:</strong></p>
+<ul>
+<li><code>backup_codes</code> (JSON array) - Django password hashes</li>
+</ul>
+<p><strong>Tracking Fields:</strong></p>
+<ul>
+<li><code>failed_attempts</code> (integer) - Brute force counter</li>
+<li><code>locked_until</code> (datetime) - Lockout expiration</li>
+<li><code>used_backup_codes</code> (JSON array) - Hashed used codes</li>
+</ul>
+<p><strong>Indexes:</strong></p>
+<ul>
+<li><code>user_id</code> - Unique constraint</li>
+<li><code>locked_until</code> - Query optimization for lockout checks</li>
+</ul>
+<h2 id="threat-model">Threat Model</h2>
+<h3 id="threats-mitigated">Threats Mitigated</h3>
+<p>✅ <strong>Database Breach</strong></p>
+<ul>
+<li>TOTP secrets encrypted (unusable without key)</li>
+<li>Backup codes hashed (cannot be reversed)</li>
+<li>Email OTP codes expire quickly</li>
+</ul>
+<p>✅ <strong>Brute Force Attacks</strong></p>
+<ul>
+<li>Account lockout after 5 attempts</li>
+<li>Rate limiting on endpoints</li>
+<li>Lockout duration prevents automated attacks</li>
+</ul>
+<p>✅ <strong>Credential Stuffing</strong></p>
+<ul>
+<li>2FA required even with valid password</li>
+<li>Multiple verification methods available</li>
+<li>Backup codes for account recovery</li>
+</ul>
+<p>✅ <strong>Session Hijacking</strong></p>
+<ul>
+<li>Verification window limits session validity</li>
+<li>Re-verification required after timeout</li>
+<li>Middleware enforces verification</li>
+</ul>
+<h3 id="threats-not-mitigated">Threats NOT Mitigated</h3>
+<p>⚠️ <strong>Phishing</strong></p>
+<ul>
+<li>Users can be tricked into providing TOTP codes</li>
+<li>Mitigation: User education, WebAuthn (future)</li>
+</ul>
+<p>⚠️ <strong>Malware on User Device</strong></p>
+<ul>
+<li>Authenticator app can be compromised</li>
+<li>Mitigation: Device security, biometric locks</li>
+</ul>
+<p>⚠️ <strong>SIM Swapping</strong> (Email OTP)</p>
+<ul>
+<li>Email account takeover bypasses 2FA</li>
+<li>Mitigation: Use TOTP instead of Email OTP</li>
+</ul>
+<p>⚠️ <strong>Social Engineering</strong></p>
+<ul>
+<li>Attackers may trick support into disabling 2FA</li>
+<li>Mitigation: Strict verification procedures</li>
+</ul>
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="for-developers">For Developers</h3>
+<ol>
+<li><strong>Use Dedicated Encryption Key</strong></li>
+</ol>
+<p><code>python
+   # Generate with:
+   from django.core.management.utils import get_random_secret_key
+   NOVA2FA_SECRET_KEY = get_random_secret_key()</code></p>
+<ol>
+<li>
+<p><strong>Secure Key Storage</strong></p>
+</li>
+<li>
+<p>Use environment variables</p>
+</li>
+<li>Never commit keys to version control</li>
+<li>Rotate keys periodically</li>
+<li>
+<p>Use secrets management (AWS Secrets Manager, etc.)</p>
+</li>
+<li>
+<p><strong>Configure HTTPS</strong></p>
+</li>
+</ol>
+<p><code>python
+   # settings.py (production)
+   SECURE_SSL_REDIRECT = True
+   SESSION_COOKIE_SECURE = True
+   CSRF_COOKIE_SECURE = True</code></p>
+<ol>
+<li><strong>Monitor Failed Attempts</strong></li>
+</ol>
+<p>```python
+   # Log lockouts for security monitoring
+   from nova2fa.models import UserTwoFactorSettings</p>
+<p>locked_users = UserTwoFactorSettings.objects.filter(
+       locked_until__gt=timezone.now()
+   )
+   ```</p>
+<ol>
+<li><strong>Customize Lockout Settings</strong>
+   <code>python
+   # Stricter for high-security apps
+   NOVA2FA_MAX_ATTEMPTS = 3
+   NOVA2FA_LOCKOUT_DURATION_MINUTES = 30</code></li>
+</ol>
+<h3 id="for-end-users">For End Users</h3>
+<ol>
+<li>
+<p><strong>Save Backup Codes Securely</strong></p>
+</li>
+<li>
+<p>Print and store in safe place</p>
+</li>
+<li>Use password manager</li>
+<li>Never share codes</li>
+<li>
+<p>Regenerate if compromised</p>
+</li>
+<li>
+<p><strong>Use Authenticator Apps</strong></p>
+</li>
+<li>
+<p>Prefer TOTP over Email OTP</p>
+</li>
+<li>Use apps like Google Authenticator, Authy</li>
+<li>
+<p>Enable app lock/biometrics</p>
+</li>
+<li>
+<p><strong>Protect Recovery Email</strong></p>
+</li>
+<li>
+<p>Use strong password</p>
+</li>
+<li>Enable 2FA on email account</li>
+<li>
+<p>Monitor for suspicious activity</p>
+</li>
+<li>
+<p><strong>Report Suspicious Activity</strong></p>
+</li>
+<li>Unexpected lockouts</li>
+<li>Unrecognized verification attempts</li>
+<li>Lost/stolen devices</li>
+</ol>
+<h2 id="compliance-considerations">Compliance Considerations</h2>
+<h3 id="gdpr">GDPR</h3>
+<ul>
+<li><strong>Data Minimization</strong>: Only stores necessary 2FA data</li>
+<li><strong>Right to Erasure</strong>: Disable 2FA to remove data</li>
+<li><strong>Data Portability</strong>: Export backup codes on generation</li>
+<li><strong>Encryption</strong>: Personal data encrypted at rest</li>
+</ul>
+<h3 id="soc-2">SOC 2</h3>
+<ul>
+<li><strong>Access Control</strong>: 2FA enforces authentication</li>
+<li><strong>Audit Logging</strong>: Track verification attempts</li>
+<li><strong>Encryption</strong>: Data encrypted in transit and at rest</li>
+<li><strong>Availability</strong>: Backup codes ensure account access</li>
+</ul>
+<h3 id="pci-dss">PCI DSS</h3>
+<ul>
+<li><strong>Multi-Factor Authentication</strong>: Requirement 8.3</li>
+<li><strong>Encryption</strong>: Requirement 3.4 (data at rest)</li>
+<li><strong>Access Logging</strong>: Requirement 10.2</li>
+<li><strong>Account Lockout</strong>: Requirement 8.1.6</li>
+</ul>
+<h2 id="security-checklist">Security Checklist</h2>
+<p>Before deploying to production:</p>
+<ul>
+<li>[ ] Set <code>NOVA2FA_SECRET_KEY</code> in environment variables</li>
+<li>[ ] Enable HTTPS with valid SSL certificate</li>
+<li>[ ] Configure secure cookie settings</li>
+<li>[ ] Set up monitoring for failed attempts</li>
+<li>[ ] Document backup code recovery process</li>
+<li>[ ] Train support staff on 2FA procedures</li>
+<li>[ ] Test account lockout behavior</li>
+<li>[ ] Verify encryption is working (check DB values)</li>
+<li>[ ] Set up backup/recovery procedures</li>
+<li>[ ] Review and customize lockout settings</li>
+</ul>
+<h2 id="incident-response">Incident Response</h2>
+<h3 id="compromised-encryption-key">Compromised Encryption Key</h3>
+<ol>
+<li>Generate new <code>NOVA2FA_SECRET_KEY</code></li>
+<li>Update environment variables</li>
+<li>Restart application</li>
+<li>Force all users to re-setup TOTP</li>
+<li>Notify users of security incident</li>
+</ol>
+<h3 id="mass-account-lockouts">Mass Account Lockouts</h3>
+<ol>
+<li>Check for DDoS/attack patterns</li>
+<li>Temporarily increase <code>NOVA2FA_LOCKOUT_DURATION_MINUTES</code></li>
+<li>Implement IP-based rate limiting</li>
+<li>Consider temporary 2FA bypass for verified users</li>
+<li>Investigate root cause</li>
+</ol>
+<h3 id="database-breach">Database Breach</h3>
+<ol>
+<li>Rotate <code>NOVA2FA_SECRET_KEY</code> immediately</li>
+<li>Force password resets for all users</li>
+<li>Force 2FA re-setup for all users</li>
+<li>Audit access logs</li>
+<li>Notify affected users</li>
+<li>Review and enhance security measures</li>
+</ol>
+<h2 id="future-enhancements">Future Enhancements</h2>
+<p>Planned security features:</p>
+<ul>
+<li><strong>WebAuthn/FIDO2</strong> support (hardware keys)</li>
+<li><strong>SMS OTP</strong> as additional method</li>
+<li><strong>Trusted devices</strong> (remember device)</li>
+<li><strong>Audit logging</strong> (detailed verification history)</li>
+<li><strong>Admin notifications</strong> (suspicious activity alerts)</li>
+<li><strong>IP whitelisting</strong> (restrict verification by location)</li>
+</ul>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html">OWASP Authentication Cheat Sheet</a></li>
+<li><a href="https://pages.nist.gov/800-63-3/">NIST Digital Identity Guidelines</a></li>
+<li><a href="https://docs.djangoproject.com/en/stable/topics/security/">Django Security Documentation</a></li>
+<li><a href="https://github.com/fernet/spec/">Fernet Specification</a></li>
+</ul>
+<hr />
+<p><strong>Questions or concerns?</strong> Open an issue on <a href="https://github.com/yourusername/nova2fa/issues">GitHub</a> or review the <a href="https://github.com/yourusername/nova2fa/blob/main/CHANGELOG.md">CHANGELOG</a>.</p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js"></script>
+        <script src="../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

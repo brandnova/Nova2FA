@@ -167,9 +167,11 @@ NOVA2FA_ENABLED_METHODS = ['email', 'totp']
 # Enable custom method (if you've created one)
 NOVA2FA_ENABLED_METHODS = ['email', 'totp', 'sms']
 </code></pre>
-<p>Available built-in methods:
-- <code>'email'</code> - Email OTP
-- <code>'totp'</code> - Authenticator App (TOTP)</p>
+<p>Available built-in methods:</p>
+<ul>
+<li><code>'email'</code> - Email OTP</li>
+<li><code>'totp'</code> - Authenticator App (TOTP)</li>
+</ul>
 <h3 id="nova2fa_verification_window_days">NOVA2FA_VERIFICATION_WINDOW_DAYS</h3>
 <p><strong>Type</strong>: <code>int</code><br />
 <strong>Default</strong>: <code>14</code><br />
@@ -184,7 +186,7 @@ NOVA2FA_VERIFICATION_WINDOW_DAYS = 30
 NOVA2FA_VERIFICATION_WINDOW_DAYS = 0
 </code></pre>
 <p>!!! note
-    This affects how often users need to enter their 2FA code. Balance security with user experience.</p>
+This affects how often users need to enter their 2FA code. Balance security with user experience.</p>
 <h2 id="email-otp-settings">Email OTP Settings</h2>
 <h3 id="nova2fa_email_otp_expiry_minutes">NOVA2FA_EMAIL_OTP_EXPIRY_MINUTES</h3>
 <p><strong>Type</strong>: <code>int</code><br />
@@ -214,7 +216,7 @@ NOVA2FA_EMAIL_OTP_EXPIRY_MINUTES = 15
 123 456
 </code></pre>
 <p>!!! tip
-    Use your application or company name for easy identification by users.</p>
+Use your application or company name for easy identification by users.</p>
 <h2 id="backup-codes-settings">Backup Codes Settings</h2>
 <h3 id="nova2fa_backup_code_count">NOVA2FA_BACKUP_CODE_COUNT</h3>
 <p><strong>Type</strong>: <code>int</code><br />
@@ -227,6 +229,39 @@ NOVA2FA_BACKUP_CODE_COUNT = 10
 NOVA2FA_BACKUP_CODE_COUNT = 5
 </code></pre>
 <h2 id="security-settings">Security Settings</h2>
+<h3 id="nova2fa_secret_key-v110">NOVA2FA_SECRET_KEY (v1.1.0+)</h3>
+<p><strong>Type</strong>: <code>str</code><br />
+<strong>Default</strong>: Falls back to <code>SECRET_KEY</code><br />
+<strong>Description</strong>: Encryption key for TOTP secrets<br />
+<strong>Required</strong>: Recommended for v1.1.0+</p>
+<pre><code class="language-python"># Generate a unique key for Nova2FA
+from django.core.management.utils import get_random_secret_key
+NOVA2FA_SECRET_KEY = get_random_secret_key()
+</code></pre>
+<p>!!! warning "Security Best Practice"
+Use a dedicated encryption key separate from Django's <code>SECRET_KEY</code>. Store in environment variables, never commit to version control.</p>
+<h3 id="nova2fa_max_attempts-v110">NOVA2FA_MAX_ATTEMPTS (v1.1.0+)</h3>
+<p><strong>Type</strong>: <code>int</code><br />
+<strong>Default</strong>: <code>5</code><br />
+<strong>Description</strong>: Maximum failed verification attempts before account lockout</p>
+<pre><code class="language-python"># Stricter lockout (3 attempts)
+NOVA2FA_MAX_ATTEMPTS = 3
+
+# More lenient (10 attempts)
+NOVA2FA_MAX_ATTEMPTS = 10
+</code></pre>
+<h3 id="nova2fa_lockout_duration_minutes-v110">NOVA2FA_LOCKOUT_DURATION_MINUTES (v1.1.0+)</h3>
+<p><strong>Type</strong>: <code>int</code><br />
+<strong>Default</strong>: <code>15</code><br />
+<strong>Description</strong>: Account lockout duration in minutes after max failed attempts</p>
+<pre><code class="language-python"># 30 minute lockout
+NOVA2FA_LOCKOUT_DURATION_MINUTES = 30
+
+# 5 minute lockout (less secure)
+NOVA2FA_LOCKOUT_DURATION_MINUTES = 5
+</code></pre>
+<p>!!! note "Brute Force Protection"
+These settings work together to prevent brute force attacks. After <code>NOVA2FA_MAX_ATTEMPTS</code> failed verifications, the account is locked for <code>NOVA2FA_LOCKOUT_DURATION_MINUTES</code>.</p>
 <h3 id="nova2fa_exempt_superusers">NOVA2FA_EXEMPT_SUPERUSERS</h3>
 <p><strong>Type</strong>: <code>bool</code><br />
 <strong>Default</strong>: <code>False</code><br />
@@ -238,7 +273,7 @@ NOVA2FA_EXEMPT_SUPERUSERS = True
 NOVA2FA_EXEMPT_SUPERUSERS = False
 </code></pre>
 <p>!!! warning "Security Consideration"
-    Exempting superusers reduces security. Only enable this if you have other access controls in place.</p>
+Exempting superusers reduces security. Only enable this if you have other access controls in place.</p>
 <h3 id="nova2fa_exempt_paths">NOVA2FA_EXEMPT_PATHS</h3>
 <p><strong>Type</strong>: <code>list</code><br />
 <strong>Default</strong>: <code>[]</code><br />
@@ -251,10 +286,7 @@ NOVA2FA_EXEMPT_PATHS = [
 ]
 </code></pre>
 <p>!!! note "Default Exemptions"
-    These paths are always exempt and don't need to be added:
-    - <code>/2fa/</code>
-    - <code>/nova2fa/</code>
-    - <code>/admin/</code></p>
+These paths are always exempt and don't need to be added: - <code>/2fa/</code> - <code>/nova2fa/</code> - <code>/admin/</code></p>
 <h3 id="nova2fa_protected_paths">NOVA2FA_PROTECTED_PATHS</h3>
 <p><strong>Type</strong>: <code>list</code><br />
 <strong>Default</strong>: <code>['*']</code><br />
@@ -271,7 +303,7 @@ NOVA2FA_PROTECTED_PATHS = [
 ]
 </code></pre>
 <p>!!! tip "Wildcard Behavior"
-    When <code>'*'</code> is in the list, all authenticated pages require 2FA unless explicitly exempted.</p>
+When <code>'*'</code> is in the list, all authenticated pages require 2FA unless explicitly exempted.</p>
 <h2 id="path-protection-examples">Path Protection Examples</h2>
 <h3 id="example-1-protect-everything">Example 1: Protect Everything</h3>
 <pre><code class="language-python">NOVA2FA_PROTECTED_PATHS = ['*']
@@ -299,6 +331,7 @@ NOVA2FA_EXEMPT_PATHS = [
 <p>All pages require 2FA except public APIs, help, and docs.</p>
 <h2 id="complete-configuration-example">Complete Configuration Example</h2>
 <pre><code class="language-python"># settings.py
+import os
 
 # ===== Nova2FA Configuration =====
 
@@ -318,8 +351,13 @@ NOVA2FA_TOTP_ISSUER = 'MyApp'
 # Backup codes
 NOVA2FA_BACKUP_CODE_COUNT = 8
 
-# Security
+# Security (v1.1.0+)
+NOVA2FA_SECRET_KEY = os.environ.get('NOVA2FA_SECRET_KEY')  # Required!
+NOVA2FA_MAX_ATTEMPTS = 5
+NOVA2FA_LOCKOUT_DURATION_MINUTES = 15
 NOVA2FA_EXEMPT_SUPERUSERS = False
+
+# Path protection
 NOVA2FA_PROTECTED_PATHS = ['*']
 NOVA2FA_EXEMPT_PATHS = [
     '/api/public/',
