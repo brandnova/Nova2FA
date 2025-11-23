@@ -315,7 +315,9 @@ NOVA2FA_LOCKOUT_DURATION_MINUTES = 15  # Lockout duration
 <p><code>python
    # Generate with:
    from django.core.management.utils import get_random_secret_key
-   NOVA2FA_SECRET_KEY = get_random_secret_key()</code></p>
+   NOVA2FA_SECRET_KEY = get_random_secret_key()
+   print(NOVA2FA_SECRET_KEY)
+   # Store securely</code></p>
 <ol>
 <li>
 <p><strong>Secure Key Storage</strong></p>
@@ -459,10 +461,8 @@ NOVA2FA_LOCKOUT_DURATION_MINUTES = 15  # Lockout duration
 <h2 id="future-enhancements">Future Enhancements</h2>
 <p>Planned security features:</p>
 <ul>
-<li><strong>WebAuthn/FIDO2</strong> support (hardware keys)</li>
 <li><strong>SMS OTP</strong> as additional method</li>
 <li><strong>Trusted devices</strong> (remember device)</li>
-<li><strong>Audit logging</strong> (detailed verification history)</li>
 <li><strong>Admin notifications</strong> (suspicious activity alerts)</li>
 <li><strong>IP whitelisting</strong> (restrict verification by location)</li>
 </ul>
@@ -474,7 +474,7 @@ NOVA2FA_LOCKOUT_DURATION_MINUTES = 15  # Lockout duration
 <li><a href="https://github.com/fernet/spec/">Fernet Specification</a></li>
 </ul>
 <hr />
-<p><strong>Questions or concerns?</strong> Open an issue on <a href="https://github.com/yourusername/nova2fa/issues">GitHub</a> or review the <a href="https://github.com/yourusername/nova2fa/blob/main/CHANGELOG.md">CHANGELOG</a>.</p></div>
+<p><strong>Questions or concerns?</strong> Open an issue on <a href="https://github.com/brandnova/Nova2FA/issues">GitHub</a> or review the <a href="https://github.com/brandnova/Nova2FA/blob/main/CHANGELOG.md">CHANGELOG</a>.</p></div>
             </div>
         </div>
 
