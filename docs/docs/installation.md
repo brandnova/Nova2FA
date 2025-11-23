@@ -304,6 +304,6 @@ After migrating, test these scenarios:
 
 If you encounter issues during migration:
 
-1. Check the [CHANGELOG](https://github.com/yourusername/nova2fa/blob/main/CHANGELOG.md)
+1. Check the [CHANGELOG](https://github.com/brandnova/Nova2FA/blob/main/CHANGELOG.md)
 2. Review the [Security Guide](security.md)
-3. Open an issue on [GitHub](https://github.com/yourusername/nova2fa/issues)
+3. Open an issue on [GitHub](https://github.com/brandnova/Nova2FA/issues)

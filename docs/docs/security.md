@@ -207,6 +207,8 @@ NOVA2FA_LOCKOUT_DURATION_MINUTES = 15  # Lockout duration
    # Generate with:
    from django.core.management.utils import get_random_secret_key
    NOVA2FA_SECRET_KEY = get_random_secret_key()
+   print(NOVA2FA_SECRET_KEY)
+   # Store securely
    ```
 
 2. **Secure Key Storage**
@@ -338,10 +340,8 @@ Before deploying to production:
 
 Planned security features:
 
-- **WebAuthn/FIDO2** support (hardware keys)
 - **SMS OTP** as additional method
 - **Trusted devices** (remember device)
-- **Audit logging** (detailed verification history)
 - **Admin notifications** (suspicious activity alerts)
 - **IP whitelisting** (restrict verification by location)
 
@@ -354,4 +354,4 @@ Planned security features:
 
 ---
 
-**Questions or concerns?** Open an issue on [GitHub](https://github.com/yourusername/nova2fa/issues) or review the [CHANGELOG](https://github.com/yourusername/nova2fa/blob/main/CHANGELOG.md).
+**Questions or concerns?** Open an issue on [GitHub](https://github.com/brandnova/Nova2FA/issues) or review the [CHANGELOG](https://github.com/brandnova/Nova2FA/blob/main/CHANGELOG.md).
