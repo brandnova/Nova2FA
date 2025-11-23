@@ -130,7 +130,7 @@ NOVA2FA_ENABLED_METHODS = ['email', 'totp']
 
 # Verification window (days user stays verified before re-verification required)
 # Default: 14 days
-NOVA2FA_VERIFICATION_WINDOW_DAYS = 3 / (24 * 60)  # 3 minutes for quick testing
+NOVA2FA_VERIFICATION_WINDOW_DAYS = 2 / (24 * 60)  # 3 minutes for quick testing
 
 # --- Security Settings (v1.1.0+) ---
 
@@ -142,11 +142,11 @@ NOVA2FA_VERIFICATION_WINDOW_DAYS = 3 / (24 * 60)  # 3 minutes for quick testing
 
 # Maximum failed verification attempts before account lockout
 # Default: 5
-# NOVA2FA_MAX_ATTEMPTS = 5
+NOVA2FA_MAX_ATTEMPTS = 5
 
 # Account lockout duration in minutes after max failed attempts
 # Default: 15 minutes
-# NOVA2FA_LOCKOUT_DURATION_MINUTES = 15
+NOVA2FA_LOCKOUT_DURATION_MINUTES = 0.5
 
 # --- Email OTP Settings ---
 
@@ -186,7 +186,7 @@ NOVA2FA_EXEMPT_SUPERUSERS = False
 # URL paths exempt from 2FA verification
 # Default: [] (no exemptions)
 # Note: /2fa/, /nova2fa/, and /admin/ are always exempt
-NOVA2FA_EXEMPT_PATHS = ['*']  # Exempt all for testing
+# NOVA2FA_EXEMPT_PATHS = ['/']  # Exempt all for testing
 # NOVA2FA_EXEMPT_PATHS = ['/api/public/', '/healthcheck/']
 
 # For production, protect everything:

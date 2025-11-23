@@ -27,10 +27,18 @@ All notable changes to this project will be documented in this file.
 - TOTP setup now displays plain text secret separately from encrypted storage
 - Views updated to handle hashed backup codes with one-time display
 
+### Security Enhancements
+
+- **Account Lockout Enforcement:** Fixed critical vulnerability where users could bypass lockout by accessing `/2fa/settings/` to disable 2FA. Lockout now blocks ALL pages including settings.
+- **Failed Attempts Counter:** Added visual counter on all verification pages (TOTP, Email OTP, Backup Codes) showing remaining attempts before lockout. Appears immediately after first failed attempt.
+- **Middleware Lockout Check:** Moved lockout verification to run BEFORE path exemptions, ensuring comprehensive enforcement across all authenticated pages.
+
 ### Fixed
 
 - QR code cleanup after TOTP setup
 - Backup code display now shows availability count instead of actual codes (security)
+- Attempts counter displaying with 1-attempt lag (now shows immediately on first failure)
+- JavaScript template rendering in lockout page
 
 ### Dependencies
 

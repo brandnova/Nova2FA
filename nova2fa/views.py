@@ -62,6 +62,36 @@ def nova2fa_settings(request):
 
 
 @login_required
+def locked(request):
+    """
+    View for account lockout page.
+    """
+    two_factor_settings, created = UserTwoFactorSettings.objects.get_or_create(
+        user=request.user
+    )
+    
+    # If not actually locked, redirect to settings
+    if not two_factor_settings.is_locked():
+        return redirect('nova2fa:settings')
+    
+    # Calculate remaining lockout time
+    remaining_time = two_factor_settings.locked_until - timezone.now()
+    minutes_remaining = max(1, int(remaining_time.total_seconds() / 60))
+    
+    # Get settings for display
+    max_attempts = getattr(settings, 'NOVA2FA_MAX_ATTEMPTS', 5)
+    lockout_duration = getattr(settings, 'NOVA2FA_LOCKOUT_DURATION_MINUTES', 15)
+    
+    context = {
+        'lockout_minutes': minutes_remaining,
+        'max_attempts': max_attempts,
+        'lockout_duration': lockout_duration,
+    }
+    
+    return render(request, 'nova2fa/locked.html', context)
+
+
+@login_required
 def setup_2fa(request):
     """
     View for setting up 2FA - method selection.
@@ -417,6 +447,9 @@ def handle_backup_code_verification(request, two_factor_settings):
                 )
                 return redirect(next_url)
             else:
+                # Refresh from database to get updated failed_attempts count
+                two_factor_settings.refresh_from_db()
+                
                 if two_factor_settings.is_locked():
                     messages.error(
                         request,
@@ -430,11 +463,16 @@ def handle_backup_code_verification(request, two_factor_settings):
     else:
         form = BackupCodeVerificationForm()
     
+    # Calculate remaining attempts
+    max_attempts = getattr(settings, 'NOVA2FA_MAX_ATTEMPTS', 5)
+    remaining_attempts = max(0, max_attempts - two_factor_settings.failed_attempts)
+    
     context = {
         'method': 'backup',
         'form': form,
         'available_codes_count': two_factor_settings.get_available_backup_codes_count(),
         'failed_attempts': two_factor_settings.failed_attempts,
+        'remaining_attempts': remaining_attempts,
     }
     
     return render(request, 'nova2fa/verify.html', context)
@@ -467,14 +505,22 @@ def handle_totp_verification(request, two_factor_settings):
                 )
                 return redirect(next_url)
             else:
+                # Refresh from database to get updated failed_attempts count
+                two_factor_settings.refresh_from_db()
                 messages.error(request, "Invalid verification code. Please try again.")
     else:
         form = TOTPVerificationForm()
+    
+    # Calculate remaining attempts (will show current count after refresh)
+    max_attempts = getattr(settings, 'NOVA2FA_MAX_ATTEMPTS', 5)
+    remaining_attempts = max(0, max_attempts - two_factor_settings.failed_attempts)
     
     context = {
         'method': 'totp',
         'form': form,
         'has_backup_codes': two_factor_settings.has_available_backup_codes(),
+        'failed_attempts': two_factor_settings.failed_attempts,
+        'remaining_attempts': remaining_attempts,
     }
     
     return render(request, 'nova2fa/verify.html', context)
@@ -536,6 +582,8 @@ def handle_email_verification(request, two_factor_settings):
                     )
                     return redirect(next_url)
                 else:
+                    # Refresh from database to get updated failed_attempts count
+                    two_factor_settings.refresh_from_db()
                     messages.error(
                         request,
                         "Invalid or expired verification code. Please try again."
@@ -546,11 +594,17 @@ def handle_email_verification(request, two_factor_settings):
     else:
         form = None
     
+    # Calculate remaining attempts
+    max_attempts = getattr(settings, 'NOVA2FA_MAX_ATTEMPTS', 5)
+    remaining_attempts = max(0, max_attempts - two_factor_settings.failed_attempts)
+    
     context = {
         'method': 'email',
         'otp_sent': otp_sent,
         'form': form,
         'has_backup_codes': two_factor_settings.has_available_backup_codes(),
+        'failed_attempts': two_factor_settings.failed_attempts,
+        'remaining_attempts': remaining_attempts,
     }
     
     return render(request, 'nova2fa/verify.html', context)

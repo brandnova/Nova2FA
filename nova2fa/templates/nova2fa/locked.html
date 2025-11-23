@@ -1,0 +1,96 @@
+{% extends "nova2fa/base_2fa.html" %} {% block title %}Account Temporarily
+Locked{% endblock %} {% block content %}
+<div class="nova2fa-card">
+  <div
+    class="nova2fa-message error"
+    style="
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+      color: #721c24;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-left: 4px solid #dc3545;
+    "
+  >
+    <h2 style="margin-top: 0; color: #721c24">🔒 Account Temporarily Locked</h2>
+    <p style="font-size: 16px; margin-bottom: 15px">
+      <strong>Too many failed verification attempts detected.</strong>
+    </p>
+    <p style="margin-bottom: 10px">
+      Your account has been temporarily locked for security reasons.
+    </p>
+    <p style="margin-bottom: 0">
+      <strong>Time remaining:</strong> Approximately {{ lockout_minutes }}
+      minute{{ lockout_minutes|pluralize }}
+    </p>
+  </div>
+
+  <h3>Why was my account locked?</h3>
+  <p>
+    After {{ max_attempts }} failed two-factor authentication attempts, your
+    account is automatically locked for {{ lockout_duration }} minutes to
+    protect against brute force attacks.
+  </p>
+
+  <h3>What can I do?</h3>
+  <ul>
+    <li>
+      <strong>Wait for the lockout period to expire</strong> - You'll be able to
+      try again in {{ lockout_minutes }} minute{{ lockout_minutes|pluralize }}.
+    </li>
+    <li>
+      <strong>Check your authenticator app</strong> - Make sure you're using the
+      correct app and account.
+    </li>
+    <li>
+      <strong>Use a backup code</strong> - If you have backup codes saved, you
+      can use one after the lockout expires.
+    </li>
+    <li>
+      <strong>Contact support</strong> - If you're unable to access your
+      account, contact your administrator.
+    </li>
+  </ul>
+
+  <div
+    class="nova2fa-message info"
+    style="
+      background-color: #d1ecf1;
+      border-color: #bee5eb;
+      color: #0c5460;
+      padding: 15px;
+      margin: 20px 0;
+      border-left: 4px solid #17a2b8;
+    "
+  >
+    <h4 style="margin-top: 0; color: #0c5460">🛡️ Security Notice</h4>
+    <p style="margin-bottom: 10px">During the lockout period, you cannot:</p>
+    <ul style="margin-bottom: 0">
+      <li>Access protected pages</li>
+      <li>Attempt 2FA verification</li>
+      <li>Modify 2FA settings</li>
+      <li>Disable two-factor authentication</li>
+    </ul>
+  </div>
+
+  <div class="nova2fa-mt-2">
+    <a
+      href="{% url 'nova2fa:settings' %}"
+      class="nova2fa-button nova2fa-button-secondary"
+    >
+      Try Again Later
+    </a>
+    <a href="/" class="nova2fa-button nova2fa-button-secondary">
+      Return to Home
+    </a>
+  </div>
+</div>
+
+<script>
+  // Auto-refresh after lockout expires
+  var lockoutMinutes = {{ lockout_minutes|default:15 }};
+  setTimeout(function() {
+      window.location.reload();
+  }, lockoutMinutes * 60 * 1000);
+</script>
+{% endblock %}

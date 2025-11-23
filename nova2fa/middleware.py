@@ -30,17 +30,49 @@ class Nova2FAMiddleware:
         if not request.user.is_authenticated:
             return self.get_response(request)
         
-        # Check if path is exempt FIRST
         path = request.path
+        
+        # CRITICAL SECURITY: Check lockout status FIRST, before any exemptions
+        # This prevents bypassing lockout by accessing /2fa/settings/ or other exempt paths
+        try:
+            from .models import UserTwoFactorSettings
+            
+            try:
+                two_factor_settings = UserTwoFactorSettings.objects.get(user=request.user)
+                
+                if two_factor_settings.is_locked():
+                    # Only allow access to the locked page itself and logout
+                    allowed_during_lockout = [
+                        '/2fa/locked/',
+                        '/admin/logout/',
+                        '/accounts/logout/',
+                        '/logout/',
+                    ]
+                    
+                    if not any(path.startswith(allowed_path) for allowed_path in allowed_during_lockout):
+                        # Calculate remaining lockout time
+                        remaining_time = two_factor_settings.locked_until - timezone.now()
+                        minutes_remaining = int(remaining_time.total_seconds() / 60)
+                        
+                        # Store lockout info in session for display
+                        request.session['nova2fa_locked'] = True
+                        request.session['nova2fa_lockout_minutes'] = minutes_remaining
+                        
+                        # Redirect to lockout page
+                        return redirect('nova2fa:locked')
+                
+            except UserTwoFactorSettings.DoesNotExist:
+                pass
+                
+        except Exception as e:
+            logger.error(f"Error checking lockout status: {str(e)}")
+        
+        # Check if path is exempt
         if self._is_path_exempt(path):
             return self.get_response(request)
         
         # Check if superuser is exempt
         if self._is_superuser_exempt(request):
-            return self.get_response(request)
-        
-        # Check if path is protected
-        if not self._is_path_protected(path):
             return self.get_response(request)
         
         # Check if user has 2FA enabled and needs verification
@@ -51,6 +83,10 @@ class Nova2FAMiddleware:
                 two_factor_settings = UserTwoFactorSettings.objects.get(user=request.user)
                 
                 if not two_factor_settings.is_enabled:
+                    return self.get_response(request)
+                
+                # Check if path is protected
+                if not self._is_path_protected(path):
                     return self.get_response(request)
                 
                 if self._is_2fa_verified(request):

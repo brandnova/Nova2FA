@@ -6,7 +6,6 @@ nav:
   - Quickstart: quickstart.md
   - Configuration: configuration.md
   - Customization: customization.md
-  - Security: security.md
   - API Reference: api-reference.md
 
 theme:

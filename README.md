@@ -12,10 +12,14 @@ Flexible, pluggable two-factor authentication for Django.
 - 🛠️ Easy to customize and extend
 - 🔒 **NEW in v1.1.0**: Encrypted TOTP secrets and hashed backup codes
 - 🛡️ **NEW in v1.1.0**: Brute force protection with account lockout
+  - Account lockout after configurable failed attempts
+  - Visual counter showing remaining attempts
+  - Comprehensive enforcement (cannot be bypassed)
+  - Automatic expiry with countdown display
 - ✅ **NEW in v1.1.0**: Comprehensive test suite
 
 ## Quick Start
 
-See [Installation Guide](docs/installation.md) for detailed setup instructions.
+See [Installation Guide](https://brandnova.github.io/Nova2FA/installation/) for detailed setup instructions.
 
 **Note**: v1.1.0 includes security enhancements. Existing users should regenerate backup codes after upgrading.

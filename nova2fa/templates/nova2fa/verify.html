@@ -9,6 +9,13 @@
     {% if method == 'totp' %}
         <p>Enter the 6-digit code from your authenticator app:</p>
         
+        {% if failed_attempts and failed_attempts > 0 %}
+        <div class="nova2fa-message warning" style="background-color: #fff3cd; border-color: #ffc107; color: #856404; padding: 10px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+            <strong>⚠️ Warning:</strong> {{ failed_attempts }} failed attempt{{ failed_attempts|pluralize }}. 
+            {{ remaining_attempts }} attempt{{ remaining_attempts|pluralize }} remaining before account lockout.
+        </div>
+        {% endif %}
+        
         <form method="post">
             {% csrf_token %}
             
@@ -46,6 +53,13 @@
         {% else %}
             <p>A verification code has been sent to your email. Please enter it below:</p>
             
+            {% if failed_attempts and failed_attempts > 0 %}
+            <div class="nova2fa-message warning" style="background-color: #fff3cd; border-color: #ffc107; color: #856404; padding: 10px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+                <strong>⚠️ Warning:</strong> {{ failed_attempts }} failed attempt{{ failed_attempts|pluralize }}. 
+                {{ remaining_attempts }} attempt{{ remaining_attempts|pluralize }} remaining before account lockout.
+            </div>
+            {% endif %}
+            
             <form method="post">
                 {% csrf_token %}
                 
@@ -74,6 +88,13 @@
     {% elif method == 'backup' %}
         <p>Enter one of your backup codes:</p>
         <p class="nova2fa-help-text">You have {{ available_codes_count }} backup codes remaining.</p>
+        
+        {% if failed_attempts and failed_attempts > 0 %}
+        <div class="nova2fa-message warning" style="background-color: #fff3cd; border-color: #ffc107; color: #856404; padding: 10px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+            <strong>⚠️ Warning:</strong> {{ failed_attempts }} failed attempt{{ failed_attempts|pluralize }}. 
+            {{ remaining_attempts }} attempt{{ remaining_attempts|pluralize }} remaining before account lockout.
+        </div>
+        {% endif %}
         
         <form method="post">
             {% csrf_token %}

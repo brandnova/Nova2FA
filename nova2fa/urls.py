@@ -6,6 +6,7 @@ app_name = 'nova2fa'
 urlpatterns = [
     # Main settings
     path('settings/', views.nova2fa_settings, name='settings'),
+    path('locked/', views.locked, name='locked'),
     
     # Setup flow
     path('setup/', views.setup_2fa, name='setup'),

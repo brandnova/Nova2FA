@@ -1,4 +1,4 @@
-# Running Tests for Nova2FA v1.1.0 (Linux)
+# Running Tests for Nova2FA v1.1.0
 
 ## Quick Test Commands
 
@@ -9,7 +9,7 @@ Due to the Django project structure, here are the recommended ways to run tests:
 ```bash
 cd /home/Nova/Desktop/Projects/Nova2FA-main
 source .venv/bin/activate
-python -m pytest tests/test_encryption.py -v -p no:django
+python -m pytest tests/test_middleware.py -v
 ```
 
 ### Option 2: Run Tests with Django (Recommended)
